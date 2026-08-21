@@ -411,47 +411,6 @@
       margin-right: 4px;
     }
 
-    /* ─── Circular Score Gauge ───────────────────────────────────────────── */
-    .gauge-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .gauge-svg {
-      width: 140px;
-      height: 140px;
-      transform: rotate(-90deg);
-    }
-    .gauge-bg {
-      fill: none;
-      stroke: rgba(255, 255, 255, 0.08);
-      stroke-width: 10;
-    }
-    .gauge-val {
-      fill: none;
-      stroke: var(--primary);
-      stroke-width: 10;
-      stroke-linecap: round;
-      transition: stroke-dashoffset 0.8s ease, stroke 0.3s ease;
-    }
-    .gauge-text {
-      position: absolute;
-      text-align: center;
-    }
-    .gauge-number {
-      font-family: var(--font-display);
-      font-size: 32px;
-      font-weight: 700;
-      line-height: 1;
-    }
-    .gauge-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
     /* ─── Bullet Breakdown List ──────────────────────────────────────────── */
     .bullet-item {
       padding: 14px;
@@ -478,6 +437,42 @@
       gap: 10px;
       font-size: 11px;
       color: var(--text-muted);
+    }
+
+    /* ─── Batch Job Selection Cards ──────────────────────────────────────── */
+    .batch-item {
+      background: rgba(15, 20, 34, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      transition: all 0.2s ease;
+    }
+    .batch-item:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(26, 34, 54, 0.6);
+    }
+    .batch-item.selected {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.08);
+    }
+    .batch-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      margin-top: 3px;
+      cursor: pointer;
+    }
+
+    .batch-result-card {
+      background: linear-gradient(145deg, rgba(26, 34, 54, 0.8) 0%, rgba(15, 20, 34, 0.9) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 14px;
     }
 
     /* ─── Live Toast Notification ────────────────────────────────────────── */
@@ -596,13 +591,17 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         Overview
       </button>
+      <button class="nav-btn" onclick="switchTab('scout-batch')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        Scout & Batch Apply
+      </button>
       <button class="nav-btn" onclick="switchTab('ingest-jobs')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-        Job Ingestion
+        URL Ingestion
       </button>
       <button class="nav-btn" onclick="switchTab('tailor-studio')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-        Tailor & Verify Studio
+        Tailor Studio
       </button>
       <button class="nav-btn" onclick="switchTab('profile-facts')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -697,7 +696,76 @@
       </div>
     </div>
 
-    <!-- ─── TAB 2: JOB INGESTION & SCRAPER ──────────────────────────────── -->
+    <!-- ─── TAB 2: SCOUT & BATCH APPLY (NEW) ────────────────────────────── -->
+    <div id="tab-scout-batch" class="tab-pane">
+      <div class="grid-1-2">
+        <!-- Search Criteria Form -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🔍 Scout Active Openings</div>
+              <div class="card-subtitle">Search live jobs by role, location, pay, and skills</div>
+            </div>
+          </div>
+
+          <form onsubmit="handleScoutSearch(event)">
+            <div class="form-group">
+              <label class="form-label">Target Role / Title *</label>
+              <input type="text" id="scout-title" class="input-text" placeholder="e.g. Machine Learning Engineer" value="Machine Learning Engineer" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Location</label>
+              <input type="text" id="scout-location" class="input-text" placeholder="e.g. Remote or United States" value="Remote" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Key Skills / Keywords (comma separated)</label>
+              <input type="text" id="scout-keywords" class="input-text" placeholder="e.g. Python, RAG, PyTorch, FAISS" value="Python, RAG" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expected Salary / Min Pay (Optional)</label>
+              <input type="text" id="scout-salary" class="input-text" placeholder="e.g. $120k+ / ₹25 LPA" />
+            </div>
+            <button type="submit" id="btn-scout-search" class="btn-primary" style="width:100%;">
+              🌐 Search & Ingest Live Jobs
+            </button>
+          </form>
+        </div>
+
+        <!-- Discovered Jobs & Batch Action Center -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">⚡ Curated Job Selection</div>
+              <div class="card-subtitle">Check the jobs you wish to auto-tailor and apply for</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-action" onclick="toggleSelectAllJobs()">Select All</button>
+              <button id="btn-batch-tailor" class="btn-primary" onclick="runBatchTailoring()" disabled>
+                ⚡ Batch Tailor Selected (<span id="batch-selected-count">0</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Job Selection List -->
+          <div id="batch-job-list" style="max-height: 520px; overflow-y: auto; padding-right: 4px;">
+            <div class="empty-state">No jobs available to select. Search for openings or scrape a URL.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batch Execution Results Grid -->
+      <div id="batch-results-section" style="display:none; margin-top:24px;" class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🎯 Batch Tailoring & Decision Engine Results</div>
+            <div class="card-subtitle">Real-time Fact-ID verification and execution status per job</div>
+          </div>
+        </div>
+        <div id="batch-results-grid" class="grid-2"></div>
+      </div>
+    </div>
+
+    <!-- ─── TAB 3: 1-CLICK URL INGESTION ────────────────────────────────── -->
     <div id="tab-ingest-jobs" class="tab-pane">
       <div class="grid-2">
         <!-- 1-Click Web Job Scraper -->
@@ -788,7 +856,7 @@
       </div>
     </div>
 
-    <!-- ─── TAB 3: TAILOR & VERIFY STUDIO ───────────────────────────────── -->
+    <!-- ─── TAB 4: TAILOR & VERIFY STUDIO ───────────────────────────────── -->
     <div id="tab-tailor-studio" class="tab-pane">
       <div class="grid-1-2">
         <!-- Control Panel -->
@@ -868,7 +936,7 @@
       </div>
     </div>
 
-    <!-- ─── TAB 4: PROFILE & FACT STORE ─────────────────────────────────── -->
+    <!-- ─── TAB 5: PROFILE & FACT STORE ─────────────────────────────────── -->
     <div id="tab-profile-facts" class="tab-pane">
       <div class="grid-2-1">
         <!-- Ingested Fact Units Browser -->
@@ -914,7 +982,7 @@
       </div>
     </div>
 
-    <!-- ─── TAB 5: DECISION LOGS ────────────────────────────────────────── -->
+    <!-- ─── TAB 6: DECISION LOGS ────────────────────────────────────────── -->
     <div id="tab-audit-decisions" class="tab-pane">
       <div class="card">
         <div class="card-header">
@@ -968,6 +1036,7 @@
     let cachedJobs = [];
     let activeFingerprint = "";
     let activeResumeId = "";
+    let selectedJobFingerprints = new Set();
 
     // ─── Tab Switching ────────────────────────────────────────────────────────
     function switchTab(tabId) {
@@ -985,6 +1054,7 @@
       });
 
       if (tabId === 'dashboard') fetchTracker();
+      if (tabId === 'scout-batch') renderBatchJobList();
       if (tabId === 'ingest-jobs') fetchJobs();
       if (tabId === 'profile-facts') fetchFacts();
       if (tabId === 'audit-decisions') fetchDecisions();
@@ -1050,28 +1120,30 @@
         cachedJobs = data.jobs || [];
         const tbody = document.getElementById('jobs-table-body');
         
-        if (cachedJobs.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No canonical jobs yet. Scrape or add a job above.</td></tr>`;
-          return;
+        if (tbody) {
+          if (cachedJobs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No canonical jobs yet. Scrape or add a job above.</td></tr>`;
+          } else {
+            tbody.innerHTML = cachedJobs.map(j => `
+              <tr>
+                <td style="font-weight:600;">${j.company}</td>
+                <td>${j.role}</td>
+                <td><span class="badge badge-${j.ats_type}">${j.ats_type.toUpperCase()}</span></td>
+                <td><code style="font-size:11px; color:var(--text-muted);">${j.fingerprint.slice(0, 14)}...</code></td>
+                <td style="font-size:12px; color:var(--text-muted);">${new Date(j.first_seen_at).toLocaleDateString()}</td>
+                <td>
+                  <div style="display:flex; gap:6px;">
+                    <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="viewJdModal('${j.fingerprint}')">View JD</button>
+                    <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${j.fingerprint}')">Tailor</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('');
+          }
         }
 
-        tbody.innerHTML = cachedJobs.map(j => `
-          <tr>
-            <td style="font-weight:600;">${j.company}</td>
-            <td>${j.role}</td>
-            <td><span class="badge badge-${j.ats_type}">${j.ats_type.toUpperCase()}</span></td>
-            <td><code style="font-size:11px; color:var(--text-muted);">${j.fingerprint.slice(0, 14)}...</code></td>
-            <td style="font-size:12px; color:var(--text-muted);">${new Date(j.first_seen_at).toLocaleDateString()}</td>
-            <td>
-              <div style="display:flex; gap:6px;">
-                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="viewJdModal('${j.fingerprint}')">View JD</button>
-                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${j.fingerprint}')">Tailor</button>
-              </div>
-            </td>
-          </tr>
-        `).join('');
-
         populateTailorSelect();
+        renderBatchJobList();
       } catch (err) {
         console.error("Fetch jobs error:", err);
       }
@@ -1130,6 +1202,240 @@
       } catch (err) {
         console.error("Fetch decisions error:", err);
       }
+    }
+
+    // ─── Scout Search & Batch Application ─────────────────────────────────────
+    async function handleScoutSearch(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-scout-search');
+      const title = document.getElementById('scout-title').value;
+      const location = document.getElementById('scout-location').value;
+      const kwStr = document.getElementById('scout-keywords').value;
+      const keywords = kwStr ? kwStr.split(',').map(k => k.trim()).filter(Boolean) : [];
+
+      btn.disabled = true;
+      btn.innerText = "Searching web & ATS engines...";
+      showToast(`Scouting live job postings for ${title}...`, "info");
+
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs/scout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, location, keywords, limit: 10 })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Discovered ${data.searched || 0} active job postings!`, "success");
+          await fetchJobs();
+          await fetchTracker();
+        } else {
+          showToast(`Search error: ${data.detail || 'Failed to scout'}`, "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "🌐 Search & Ingest Live Jobs";
+      }
+    }
+
+    function renderBatchJobList() {
+      const container = document.getElementById('batch-job-list');
+      if (!container) return;
+
+      if (cachedJobs.length === 0) {
+        container.innerHTML = `<div class="empty-state">No jobs available yet. Run a Scout Search or Scrape a URL to populate.</div>`;
+        return;
+      }
+
+      container.innerHTML = cachedJobs.map(j => {
+        const isChecked = selectedJobFingerprints.has(j.fingerprint);
+        return `
+          <div class="batch-item ${isChecked ? 'selected' : ''}" id="batch-item-${j.fingerprint}">
+            <input type="checkbox" class="batch-checkbox" value="${j.fingerprint}" ${isChecked ? 'checked' : ''} onchange="toggleJobSelection('${j.fingerprint}')" />
+            <div style="flex:1;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+                <span style="font-weight:600; font-size:14px;">${j.company}</span>
+                <span class="badge badge-${j.ats_type}">${j.ats_type.toUpperCase()}</span>
+              </div>
+              <div style="color:var(--text-muted); font-size:13px; margin-bottom:6px;">${j.role}</div>
+              <div style="font-size:11px; color:var(--text-dim); display:flex; gap:12px;">
+                <span>🔗 ${j.application_link ? `<a href="${j.application_link}" target="_blank" style="color:var(--accent); text-decoration:none;">View Posting</a>` : 'Manual Posting'}</span>
+                <span>SHA-256: <code>${j.fingerprint.slice(0, 10)}...</code></span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      updateBatchButton();
+    }
+
+    function toggleJobSelection(fingerprint) {
+      if (selectedJobFingerprints.has(fingerprint)) {
+        selectedJobFingerprints.delete(fingerprint);
+      } else {
+        selectedJobFingerprints.add(fingerprint);
+      }
+      renderBatchJobList();
+    }
+
+    function toggleSelectAllJobs() {
+      if (selectedJobFingerprints.size === cachedJobs.length) {
+        selectedJobFingerprints.clear();
+      } else {
+        cachedJobs.forEach(j => selectedJobFingerprints.add(j.fingerprint));
+      }
+      renderBatchJobList();
+    }
+
+    function updateBatchButton() {
+      const count = selectedJobFingerprints.size;
+      const countEl = document.getElementById('batch-selected-count');
+      const btn = document.getElementById('btn-batch-tailor');
+      if (countEl) countEl.innerText = count;
+      if (btn) btn.disabled = count === 0;
+    }
+
+    async function runBatchTailoring() {
+      const selected = Array.from(selectedJobFingerprints);
+      if (selected.length === 0) return;
+
+      const btn = document.getElementById('btn-batch-tailor');
+      btn.disabled = true;
+      btn.innerText = `Processing batch (0/${selected.length})...`;
+
+      const resultsSection = document.getElementById('batch-results-section');
+      const grid = document.getElementById('batch-results-grid');
+      resultsSection.style.display = 'block';
+      grid.innerHTML = "";
+
+      showToast(`Starting Fact-ID Grounded Tailoring for ${selected.length} jobs...`, "info");
+
+      let processedCount = 0;
+
+      for (const fp of selected) {
+        const job = cachedJobs.find(j => j.fingerprint === fp);
+        if (!job) continue;
+
+        try {
+          // 1. Tailor & Verify
+          const res = await fetch(`${API_BASE}/api/tailor/${fp}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              profile: {
+                name: "Lokanth Srihari",
+                email: "lokanth2006@gmail.com",
+                phone: "8838379971",
+                location: "Vellore, India",
+                linkedin: "https://linkedin.com/in/lokanth"
+              }
+            })
+          });
+          const tailorData = await res.json();
+          
+          // 2. Evaluate Decision Engine
+          const execRes = await fetch(`${API_BASE}/api/execute/path-a/${fp}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" }
+            })
+          });
+          const decisionData = await execRes.json();
+
+          processedCount++;
+          btn.innerText = `Processing batch (${processedCount}/${selected.length})...`;
+
+          // Render Result Card
+          renderBatchResultCard(grid, job, tailorData, decisionData);
+        } catch (err) {
+          console.error(`Error batch processing ${job.company}:`, err);
+        }
+      }
+
+      btn.disabled = false;
+      btn.innerText = `⚡ Batch Tailor Selected (${selectedJobFingerprints.size})`;
+      showToast(`Batch execution complete for ${processedCount} jobs!`, "success");
+      fetchTracker();
+      fetchDecisions();
+    }
+
+    function renderBatchResultCard(grid, job, tailor, decision) {
+      const card = document.createElement('div');
+      card.className = "batch-result-card";
+      
+      const gScore = (tailor.grounding_score * 100).toFixed(1);
+      const isPathA = decision.route === 'PATH_A';
+      const cleanPdfPath = tailor.pdf_path ? tailor.pdf_path.replace(/\\/g, '/').split('/').pop() : '';
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+          <div>
+            <div style="font-weight:700; font-size:15px;">${job.company}</div>
+            <div style="color:var(--text-muted); font-size:13px;">${job.role}</div>
+          </div>
+          <span class="badge badge-path-${isPathA ? 'a' : 'b'}">${decision.route}</span>
+        </div>
+
+        <div class="grid-3" style="gap:8px; margin-bottom:12px;">
+          <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:var(--radius-sm); text-align:center;">
+            <div style="font-size:10px; color:var(--text-dim);">GROUNDING</div>
+            <div style="font-size:16px; font-weight:700; color:${tailor.grounding_score >= 0.95 ? 'var(--success)' : 'var(--warning)'};">${gScore}%</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:var(--radius-sm); text-align:center;">
+            <div style="font-size:10px; color:var(--text-dim);">VERIFIED</div>
+            <div style="font-size:16px; font-weight:700; color:var(--text-main);">${tailor.passed_bullets}/${tailor.total_bullets}</div>
+          </div>
+          <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:var(--radius-sm); text-align:center;">
+            <div style="font-size:10px; color:var(--text-dim);">ATS PLATFORM</div>
+            <div style="font-size:13px; font-weight:600; color:var(--accent); text-transform:uppercase;">${job.ats_type}</div>
+          </div>
+        </div>
+
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
+          <strong>Decision rationale:</strong> ${decision.reason || 'All thresholds cleared for auto-fill.'}
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center;">
+          ${cleanPdfPath ? `<a href="/resumes/${cleanPdfPath}" target="_blank" class="btn-action" style="font-size:11px; text-decoration:none;">📄 Download PDF</a>` : ''}
+          ${isPathA ? 
+            `<button class="btn-primary btn-success" style="font-size:11px; padding:6px 12px;" onclick="triggerPathAFor('${job.fingerprint}')">🚀 Launch Auto-Fill</button>` : 
+            `<button class="btn-primary btn-warning" style="font-size:11px; padding:6px 12px;" onclick="triggerPathBFor('${job.fingerprint}')">📱 Send Telegram</button>
+             ${job.application_link ? `<a href="${job.application_link}" target="_blank" class="btn-action" style="font-size:11px; text-decoration:none;">🔗 Apply with PDF</a>` : ''}`
+          }
+        </div>
+      `;
+      grid.appendChild(card);
+    }
+
+    async function triggerPathAFor(fp) {
+      showToast("Launching Playwright autofill...", "info");
+      try {
+        const res = await fetch(`${API_BASE}/api/execute/path-a/${fp}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" } })
+        });
+        const d = await res.json();
+        showToast(d.message || `Route: ${d.route}`, "success");
+        fetchTracker();
+      } catch (e) { showToast(e.message, "error"); }
+    }
+
+    async function triggerPathBFor(fp) {
+      showToast("Dispatching Telegram notification...", "info");
+      try {
+        const res = await fetch(`${API_BASE}/api/execute/path-b/${fp}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" } })
+        });
+        const d = await res.json();
+        showToast(d.sent ? "Telegram alert dispatched!" : "Telegram alert logged (check tokens in .env)", "success");
+        fetchTracker();
+      } catch (e) { showToast(e.message, "error"); }
     }
 
     // ─── Actions & Handlers ───────────────────────────────────────────────────
@@ -1231,6 +1537,7 @@
     // ─── Tailor & Studio Integration ─────────────────────────────────────────
     function populateTailorSelect() {
       const select = document.getElementById('tailor-job-select');
+      if (!select) return;
       select.innerHTML = '<option value="">-- Choose a job --</option>' + 
         cachedJobs.map(j => `<option value="${j.fingerprint}">${j.company} — ${j.role} (${j.ats_type})</option>`).join('');
     }
@@ -1320,11 +1627,9 @@
         verdictEl.style.color = "var(--warning)";
       }
 
-      // Enable execution action buttons
       document.getElementById('btn-path-a').disabled = false;
       document.getElementById('btn-path-b').disabled = false;
 
-      // PDF Download Button
       const pdfContainer = document.getElementById('pdf-download-btn-container');
       if (data.pdf_path) {
         const cleanPath = data.pdf_path.replace(/\\/g, '/');
@@ -1336,7 +1641,6 @@
         `;
       }
 
-      // Bullets List
       const container = document.getElementById('verified-bullets-container');
       if (data.verified_bullets && data.verified_bullets.length > 0) {
         container.innerHTML = data.verified_bullets.map(b => `
@@ -1355,42 +1659,12 @@
 
     async function triggerPathA() {
       if (!activeFingerprint) return;
-      showToast("Launching Playwright autofill with Human-in-the-Loop stop...", "info");
-      try {
-        const res = await fetch(`${API_BASE}/api/execute/path-a/${activeFingerprint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" }
-          })
-        });
-        const data = await res.json();
-        showToast(data.message || `Decision Engine routed: ${data.route}`, data.route === 'PATH_A' ? 'success' : 'warning');
-        fetchDecisions();
-        fetchTracker();
-      } catch (err) {
-        showToast(err.message, "error");
-      }
+      triggerPathAFor(activeFingerprint);
     }
 
     async function triggerPathB() {
       if (!activeFingerprint) return;
-      showToast("Dispatching Telegram notification with attached PDF...", "info");
-      try {
-        const res = await fetch(`${API_BASE}/api/execute/path-b/${activeFingerprint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" }
-          })
-        });
-        const data = await res.json();
-        showToast(data.sent ? "Telegram notification sent!" : "Telegram alert logged (check bot tokens in .env)", "success");
-        fetchDecisions();
-        fetchTracker();
-      } catch (err) {
-        showToast(err.message, "error");
-      }
+      triggerPathBFor(activeFingerprint);
     }
 
     // ─── Modal Helpers ────────────────────────────────────────────────────────
