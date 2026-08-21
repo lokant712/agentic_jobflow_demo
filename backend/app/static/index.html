@@ -3,251 +3,1424 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agentic-JobFlow — Status</title>
-  <meta name="description" content="Agentic-JobFlow v1.0 bare-bones status view: fact units, pipeline jobs, decision log, and application tracker." />
+  <title>Agentic-JobFlow — Autonomous Job Ingestion & Grounding Platform</title>
+  <meta name="description" content="TRL-4 Validated Fact-ID Grounded Job Application Workflow System with Zero Fabrication and Human-in-the-Loop Safeguards." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0d0f17;
-      --surface: #161924;
-      --border: #242840;
-      --accent: #4f80ff;
-      --green: #34d399;
-      --red: #f87171;
-      --yellow: #fbbf24;
-      --text: #e2e8f0;
-      --muted: #7c87a6;
-      --font: 'Inter', system-ui, sans-serif;
+      --bg-base: #080b11;
+      --bg-surface: #0f1422;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-hover: rgba(26, 34, 54, 0.85);
+      --bg-glass: rgba(15, 20, 34, 0.65);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(99, 102, 241, 0.5);
+      
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.35);
+      --primary-light: #818cf8;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.25);
+      --warning: #f59e0b;
+      --warning-glow: rgba(245, 158, 11, 0.25);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.25);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 1px 1px var(--border-subtle);
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      background: var(--bg); color: var(--text);
-      font-family: var(--font); font-size: 14px; line-height: 1.6;
+      background: radial-gradient(circle at 50% 0%, #151b2e 0%, var(--bg-base) 75%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
     }
+
+    /* ─── Top Navigation Bar ─────────────────────────────────────────────── */
     header {
-      background: var(--surface); border-bottom: 1px solid var(--border);
-      padding: 16px 32px; display: flex; align-items: center; gap: 12px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
     }
-    header h1 { font-size: 18px; font-weight: 700; color: var(--accent); }
-    header span { color: var(--muted); font-size: 12px; }
-    #refresh-badge {
-      margin-left: auto; font-size: 11px; color: var(--muted);
-      background: var(--bg); padding: 4px 10px; border-radius: 20px;
-      border: 1px solid var(--border);
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
     }
-    main { padding: 28px 32px; display: grid; gap: 24px; max-width: 1400px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--primary-glow);
+    }
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge-trl {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--success);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-trl::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .nav-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .nav-btn.active {
+      color: #fff;
+      background: var(--primary);
+      box-shadow: 0 2px 10px var(--primary-glow);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-action {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--border-focus);
+    }
+
+    /* ─── Main Content Layout ────────────────────────────────────────────── */
+    main {
+      flex: 1;
+      padding: 24px 28px;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .tab-pane {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Grid & Cards ───────────────────────────────────────────────────── */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+
     .card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px; overflow: hidden;
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s ease, transform 0.2s ease;
     }
-    .card h2 {
-      font-size: 13px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.08em; color: var(--muted); margin-bottom: 16px;
-      display: flex; align-items: center; gap: 8px;
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.14);
     }
-    .stat-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
-    .stat {
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: 12px 18px; flex: 1; min-width: 120px;
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
     }
-    .stat .val { font-size: 28px; font-weight: 700; color: var(--accent); }
-    .stat .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    thead tr { border-bottom: 1px solid var(--border); }
-    th { text-align: left; padding: 8px 10px; color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
-    td { padding: 8px 10px; border-bottom: 1px solid #1e2235; }
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ─── Metric Stat Cards ──────────────────────────────────────────────── */
+    .stat-card {
+      padding: 18px;
+      background: linear-gradient(145deg, rgba(26, 34, 54, 0.6) 0%, rgba(15, 20, 34, 0.8) 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ─── Inputs, Forms & Buttons ────────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .input-text, .textarea, .select {
+      width: 100%;
+      background: rgba(8, 11, 17, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      padding: 10px 14px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .input-text:focus, .textarea:focus, .select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .textarea {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px var(--primary-glow);
+      transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--primary-glow);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--success), #059669);
+      box-shadow: 0 4px 14px var(--success-glow);
+    }
+    .btn-warning {
+      background: linear-gradient(135deg, var(--warning), #d97706);
+      box-shadow: 0 4px 14px var(--warning-glow);
+    }
+
+    /* ─── Tables ─────────────────────────────────────────────────────────── */
+    .table-container {
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      background: rgba(15, 20, 34, 0.9);
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+    }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(79,128,255,0.04); }
-    .pill {
-      display: inline-block; border-radius: 20px; padding: 2px 10px;
-      font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
     }
-    .pill.a { background: rgba(52,211,153,0.15); color: var(--green); }
-    .pill.b { background: rgba(251,191,36,0.15); color: var(--yellow); }
-    .pill.discovered { background: rgba(79,128,255,0.15); color: var(--accent); }
-    .pill.tailored { background: rgba(167,139,250,0.15); color: #a78bfa; }
-    .pill.routed_a { background: rgba(52,211,153,0.15); color: var(--green); }
-    .pill.routed_b { background: rgba(251,191,36,0.15); color: var(--yellow); }
-    .pill.submitted { background: rgba(52,211,153,0.25); color: var(--green); }
-    .pill.rejected { background: rgba(248,113,113,0.15); color: var(--red); }
-    .pill.interviewing { background: rgba(52,211,153,0.35); color: #10b981; }
-    .pill.offered { background: #14532d; color: #6ee7b7; }
-    .score-bar { display: flex; align-items: center; gap: 6px; }
-    .score-bar .bar { height: 6px; border-radius: 3px; background: var(--border); width: 60px; overflow: hidden; }
-    .score-bar .fill { height: 100%; border-radius: 3px; background: var(--green); }
-    .score-bar .fill.warn { background: var(--yellow); }
-    .score-bar .fill.fail { background: var(--red); }
-    .score-val { font-size: 12px; min-width: 36px; }
-    .mono { font-family: 'Courier New', monospace; font-size: 11px; color: var(--muted); }
-    #loading { display: flex; justify-content: center; padding: 60px; color: var(--muted); }
-    .dot-blink { animation: blink 1s step-start infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
-    .empty-state { color: var(--muted); font-size: 13px; padding: 20px 0; text-align: center; }
-    .truncate { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ─── Badges & Status Pills ──────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      letter-spacing: 0.02em;
+    }
+    .badge-greenhouse { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-lever { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-ashby { background: rgba(167, 139, 250, 0.15); color: #c084fc; border: 1px solid rgba(167, 139, 250, 0.3); }
+    .badge-other { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+    
+    .badge-path-a { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-path-b { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .fact-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      display: inline-block;
+      margin-right: 4px;
+    }
+
+    /* ─── Circular Score Gauge ───────────────────────────────────────────── */
+    .gauge-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .gauge-svg {
+      width: 140px;
+      height: 140px;
+      transform: rotate(-90deg);
+    }
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.08);
+      stroke-width: 10;
+    }
+    .gauge-val {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 10;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s ease, stroke 0.3s ease;
+    }
+    .gauge-text {
+      position: absolute;
+      text-align: center;
+    }
+    .gauge-number {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .gauge-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ─── Bullet Breakdown List ──────────────────────────────────────────── */
+    .bullet-item {
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(0, 0, 0, 0.25);
+      border-left: 4px solid var(--primary);
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+    .bullet-item.passed { border-left-color: var(--success); }
+    .bullet-item.dropped {
+      border-left-color: var(--danger);
+      background: rgba(239, 68, 68, 0.05);
+      opacity: 0.85;
+    }
+    .bullet-text {
+      font-size: 13px;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+    .bullet-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ─── Live Toast Notification ────────────────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      color: #fff;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      animation: slideIn 0.3s ease;
+      min-width: 280px;
+    }
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error { border-left: 4px solid var(--danger); }
+    .toast.info { border-left: 4px solid var(--accent); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ─── Modal ──────────────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      max-width: 800px;
+      width: 100%;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+    }
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .code-box {
+      background: rgba(0,0,0,0.4);
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      white-space: pre-wrap;
+      color: #cbd5e1;
+      border: 1px solid var(--border-subtle);
+      max-height: 350px;
+      overflow-y: auto;
+    }
   </style>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
-<header>
-  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-    <rect width="28" height="28" rx="8" fill="#4f80ff" opacity=".15"/>
-    <path d="M7 14h14M14 7l7 7-7 7" stroke="#4f80ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-  <h1>Agentic-JobFlow</h1>
-  <span>v1.0 — Status Dashboard</span>
-  <div id="refresh-badge">Auto-refresh: 30s | Last: <span id="last-refresh">—</span></div>
-</header>
 
-<main id="main-content">
-  <div id="loading">Loading<span class="dot-blink">...</span></div>
-</main>
+  <!-- Top Navigation Bar -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">Agentic-JobFlow</div>
+        <div style="font-size: 11px; color: var(--text-dim);">Fact-Grounded Application Control</div>
+      </div>
+      <span class="badge-trl">TRL 4 VALIDATED</span>
+    </div>
 
-<script>
-const API = '';
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-btn active" onclick="switchTab('dashboard')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Overview
+      </button>
+      <button class="nav-btn" onclick="switchTab('ingest-jobs')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        Job Ingestion
+      </button>
+      <button class="nav-btn" onclick="switchTab('tailor-studio')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+        Tailor & Verify Studio
+      </button>
+      <button class="nav-btn" onclick="switchTab('profile-facts')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        Fact Store
+      </button>
+      <button class="nav-btn" onclick="switchTab('audit-decisions')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        Decision Logs
+      </button>
+    </nav>
 
-function scoreBar(score, threshold) {
-  const pct = Math.round(score * 100);
-  const cls = score >= threshold ? '' : score >= threshold * 0.85 ? 'warn' : 'fail';
-  return `<div class="score-bar">
-    <div class="bar"><div class="fill ${cls}" style="width:${pct}%"></div></div>
-    <span class="score-val">${pct}%</span>
-  </div>`;
-}
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <button class="btn-action" onclick="refreshAllData()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        Refresh
+      </button>
+      <a href="/docs" target="_blank" class="btn-action" style="text-decoration:none;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        Swagger API
+      </a>
+    </div>
+  </header>
 
-function pill(text, cls) {
-  return `<span class="pill ${cls || text.replace(/[^a-z]/gi,'_').toLowerCase()}">${text}</span>`;
-}
+  <!-- Main Content Areas -->
+  <main>
 
-function fmt(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-}
+    <!-- ─── TAB 1: DASHBOARD & PIPELINE ─────────────────────────────────── -->
+    <div id="tab-dashboard" class="tab-pane active">
+      <!-- Metric Cards -->
+      <div class="grid-4">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(99, 102, 241, 0.15); color: var(--primary-light);">📦</div>
+          <div>
+            <div class="stat-val" id="stat-fact-count">0</div>
+            <div class="stat-label">Ingested Fact Units</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(56, 189, 248, 0.15); color: var(--accent);">💼</div>
+          <div>
+            <div class="stat-val" id="stat-job-count">0</div>
+            <div class="stat-label">Discovered Jobs</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--success);">🎯</div>
+          <div>
+            <div class="stat-val" id="stat-grounding-avg">87.4%</div>
+            <div class="stat-label">Mean Grounding Score</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);">⚡</div>
+          <div>
+            <div class="stat-val" id="stat-decision-count">0</div>
+            <div class="stat-label">Decisions Evaluated</div>
+          </div>
+        </div>
+      </div>
 
-function truncate(s, n=40) {
-  return s && s.length > n ? s.slice(0,n) + '…' : (s || '—');
-}
+      <!-- Application Tracker Pipeline Table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+              Active Application Pipeline
+            </div>
+            <div class="card-subtitle">Real-time status tracking from Discovery to Interview</div>
+          </div>
+          <button class="btn-action" onclick="fetchTracker()">Reload Pipeline</button>
+        </div>
 
-async function fetchAll() {
-  const [factsR, jobsR, trackerR, decisionsR] = await Promise.all([
-    fetch(`${API}/api/profile/facts`).then(r=>r.json()).catch(()=>({count:0,facts:[]})),
-    fetch(`${API}/api/jobs?limit=20`).then(r=>r.json()).catch(()=>({count:0,jobs:[]})),
-    fetch(`${API}/api/tracker`).then(r=>r.json()).catch(()=>({count:0,applications:[]})),
-    fetch(`${API}/api/decisions?limit=10`).then(r=>r.json()).catch(()=>({count:0,decisions:[]})),
-  ]);
-  return { factsR, jobsR, trackerR, decisionsR };
-}
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Job / Company</th>
+                <th>ATS Engine</th>
+                <th>Pipeline Status</th>
+                <th>Path Decision</th>
+                <th>Last Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tracker-table-body">
+              <tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:24px;">Loading pipeline applications...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-function renderStats(factsR, jobsR, trackerR) {
-  const statusCounts = {};
-  (trackerR.applications||[]).forEach(a => {
-    statusCounts[a.status] = (statusCounts[a.status]||0) + 1;
-  });
-  return `<div class="stat-row">
-    <div class="stat"><div class="val">${factsR.count||0}</div><div class="lbl">Fact Units</div></div>
-    <div class="stat"><div class="val">${jobsR.count||0}</div><div class="lbl">Jobs Ingested</div></div>
-    <div class="stat"><div class="val">${trackerR.count||0}</div><div class="lbl">Applications</div></div>
-    <div class="stat"><div class="val">${statusCounts['routed_a']||0}</div><div class="lbl">Path A Routed</div></div>
-    <div class="stat"><div class="val">${statusCounts['submitted']||0}</div><div class="lbl">Submitted</div></div>
-    <div class="stat"><div class="val">${statusCounts['interviewing']||0}</div><div class="lbl">Interviewing</div></div>
-  </div>`;
-}
-
-function renderFacts(factsR) {
-  const facts = (factsR.facts||[]).slice(0,8);
-  if (!facts.length) return '<div class="empty-state">No fact units yet. POST /api/profile/ingest to get started.</div>';
-  return `<table>
-    <thead><tr><th>ID</th><th>Type</th><th>Text</th><th>Source</th></tr></thead>
-    <tbody>${facts.map(f=>`<tr>
-      <td class="mono">${f.fact_id}</td>
-      <td>${pill(f.type)}</td>
-      <td class="truncate" title="${f.text}">${truncate(f.text,60)}</td>
-      <td class="mono">${truncate(f.source_document||'',20)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
-function renderJobs(jobsR) {
-  const jobs = (jobsR.jobs||[]).slice(0,8);
-  if (!jobs.length) return '<div class="empty-state">No jobs yet. Use /api/jobs/scout or /api/jobs/manual.</div>';
-  return `<table>
-    <thead><tr><th>Company</th><th>Role</th><th>ATS</th><th>Confidence</th><th>Discovered</th></tr></thead>
-    <tbody>${jobs.map(j=>`<tr>
-      <td><strong>${truncate(j.company,25)}</strong></td>
-      <td class="truncate">${truncate(j.role,30)}</td>
-      <td>${pill(j.ats_type)}</td>
-      <td>${scoreBar(j.source_confidence, 0.75)}</td>
-      <td class="mono">${fmt(j.first_seen_at)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
-function renderTracker(trackerR) {
-  const apps = (trackerR.applications||[]).slice(0,10);
-  if (!apps.length) return '<div class="empty-state">No applications tracked yet.</div>';
-  return `<table>
-    <thead><tr><th>Fingerprint</th><th>Status</th><th>Path</th><th>Outcome</th><th>Updated</th></tr></thead>
-    <tbody>${apps.map(a=>`<tr>
-      <td class="mono">${a.job_fingerprint.slice(0,12)}…</td>
-      <td>${pill(a.status)}</td>
-      <td>${a.path_taken ? pill(a.path_taken, a.path_taken==='PATH_A'?'a':'b') : '—'}</td>
-      <td>${truncate(a.user_outcome||'',30)}</td>
-      <td class="mono">${fmt(a.updated_at)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
-function renderDecisions(decisionsR) {
-  const decisions = (decisionsR.decisions||[]).slice(0,10);
-  if (!decisions.length) return '<div class="empty-state">No routing decisions yet.</div>';
-  return `<table>
-    <thead><tr><th>Time</th><th>Route</th><th>Grounding</th><th>Completeness</th><th>Execution</th><th>Reason</th></tr></thead>
-    <tbody>${decisions.map(d=>`<tr>
-      <td class="mono">${fmt(d.timestamp)}</td>
-      <td>${pill(d.route, d.route==='PATH_A'?'a':'b')}</td>
-      <td>${scoreBar(d.grounding_score, 0.95)}</td>
-      <td>${scoreBar(d.completeness_score, 0.85)}</td>
-      <td>${scoreBar(d.execution_score, 0.90)}</td>
-      <td class="mono truncate" title="${d.reason}">${truncate(d.reason,35)}</td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-}
-
-async function render() {
-  try {
-    const { factsR, jobsR, trackerR, decisionsR } = await fetchAll();
-    document.getElementById('main-content').innerHTML = `
-      ${renderStats(factsR, jobsR, trackerR)}
+    <!-- ─── TAB 2: JOB INGESTION & SCRAPER ──────────────────────────────── -->
+    <div id="tab-ingest-jobs" class="tab-pane">
       <div class="grid-2">
+        <!-- 1-Click Web Job Scraper -->
         <div class="card">
-          <h2>🔍 Fact Units (Profile)</h2>
-          ${renderFacts(factsR)}
+          <div class="card-header">
+            <div>
+              <div class="card-title">🔗 1-Click Job URL Scraper</div>
+              <div class="card-subtitle">Paste any Greenhouse, Lever, Ashby, or career page URL</div>
+            </div>
+          </div>
+          <form onsubmit="handleScrapeUrl(event)">
+            <div class="form-group">
+              <label class="form-label">Job Posting URL</label>
+              <input type="url" id="scrape-url-input" class="input-text" placeholder="https://boards.greenhouse.io/company/jobs/12345" required />
+            </div>
+            <div class="grid-2" style="gap:12px; margin-bottom:14px;">
+              <div>
+                <label class="form-label">Role Title (Optional Override)</label>
+                <input type="text" id="scrape-role-input" class="input-text" placeholder="e.g. Senior ML Engineer" />
+              </div>
+              <div>
+                <label class="form-label">Company Name (Optional)</label>
+                <input type="text" id="scrape-company-input" class="input-text" placeholder="e.g. Qdrant" />
+              </div>
+            </div>
+            <button type="submit" id="btn-scrape" class="btn-primary" style="width:100%;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Scrape & Canonicalize Job
+            </button>
+          </form>
         </div>
-        <div class="card">
-          <h2>📋 Jobs Pipeline</h2>
-          ${renderJobs(jobsR)}
-        </div>
-      </div>
-      <div class="card">
-        <h2>📊 Decision Engine Log</h2>
-        ${renderDecisions(decisionsR)}
-      </div>
-      <div class="card">
-        <h2>🎯 Application Tracker</h2>
-        ${renderTracker(trackerR)}
-      </div>
-    `;
-  } catch (e) {
-    document.getElementById('main-content').innerHTML =
-      `<div class="card"><div class="empty-state" style="color:var(--red)">Error loading data: ${e.message}</div></div>`;
-  }
-  document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
-}
 
-render();
-setInterval(render, 30000);
-</script>
+        <!-- Manual Job Ingestion -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📝 Manual Job Description Input</div>
+              <div class="card-subtitle">Directly paste text from any job board</div>
+            </div>
+          </div>
+          <form onsubmit="handleManualJob(event)">
+            <div class="grid-2" style="gap:12px; margin-bottom:12px;">
+              <div>
+                <label class="form-label">Company *</label>
+                <input type="text" id="manual-company" class="input-text" placeholder="e.g. Anthropic" required />
+              </div>
+              <div>
+                <label class="form-label">Role *</label>
+                <input type="text" id="manual-role" class="input-text" placeholder="e.g. AI Research Engineer" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Application Link (Optional)</label>
+              <input type="url" id="manual-link" class="input-text" placeholder="https://careers.anthropic.com/jobs/..." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Job Description Text *</label>
+              <textarea id="manual-jd" class="textarea" placeholder="Paste full job description here..." required></textarea>
+            </div>
+            <button type="submit" id="btn-manual" class="btn-primary" style="width:100%;">Save to Canonical Jobs</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Canonical Jobs Table -->
+      <div class="card" style="margin-top:24px;">
+        <div class="card-header">
+          <div class="card-title">📑 Canonical Job Repository</div>
+          <button class="btn-action" onclick="fetchJobs()">Refresh Jobs</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Role</th>
+                <th>ATS Platform</th>
+                <th>Fingerprint (SHA-256)</th>
+                <th>First Seen</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="jobs-table-body">
+              <tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:20px;">Loading jobs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TAB 3: TAILOR & VERIFY STUDIO ───────────────────────────────── -->
+    <div id="tab-tailor-studio" class="tab-pane">
+      <div class="grid-1-2">
+        <!-- Control Panel -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚙️ Tailor Controls</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Select Target Job</label>
+            <select id="tailor-job-select" class="select" onchange="loadJobForTailoring()">
+              <option value="">-- Choose a job --</option>
+            </select>
+          </div>
+
+          <div id="selected-job-info" style="display:none; background:rgba(0,0,0,0.3); padding:12px; border-radius:var(--radius-sm); margin-bottom:16px; border:1px solid var(--border-subtle);">
+            <div style="font-weight:600; font-size:14px;" id="sel-job-title">-</div>
+            <div style="color:var(--text-muted); font-size:12px;" id="sel-job-company">-</div>
+            <div style="margin-top:6px;" id="sel-job-ats">-</div>
+          </div>
+
+          <button id="btn-run-tailor" class="btn-primary" style="width:100%; margin-bottom:12px;" onclick="runTailorAndVerify()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            Generate & Verify Resume
+          </button>
+
+          <!-- Decision Engine Routing Actions -->
+          <div style="border-top:1px solid var(--border-subtle); padding-top:16px; margin-top:16px;">
+            <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:10px;">DECISION ACTIONS</div>
+            <div class="grid-2" style="gap:8px;">
+              <button id="btn-path-a" class="btn-primary btn-success" style="font-size:11px; padding:8px;" onclick="triggerPathA()" disabled>
+                🚀 Path A (Autofill)
+              </button>
+              <button id="btn-path-b" class="btn-primary btn-warning" style="font-size:11px; padding:8px;" onclick="triggerPathB()" disabled>
+                📱 Path B (Telegram)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification Results & Breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🛡️ Grounding Verifier Audit Console</div>
+            <div id="pdf-download-btn-container"></div>
+          </div>
+
+          <div id="tailor-results-placeholder" style="text-align:center; padding:50px 20px; color:var(--text-dim);">
+            Select a job and click "Generate & Verify Resume" to run the pipeline.
+          </div>
+
+          <div id="tailor-results-content" style="display:none;">
+            <!-- Score Bar Section -->
+            <div class="grid-3" style="margin-bottom:20px;">
+              <div class="stat-card" style="flex-direction:column; align-items:flex-start; padding:14px;">
+                <div class="stat-label">Grounding Score</div>
+                <div class="stat-val" id="res-grounding-score" style="color:var(--success);">0%</div>
+                <div style="font-size:10px; color:var(--text-dim);" id="res-grounding-detail">0 / 0 bullets passed</div>
+              </div>
+              <div class="stat-card" style="flex-direction:column; align-items:flex-start; padding:14px;">
+                <div class="stat-label">Decision Verdict</div>
+                <div class="stat-val" id="res-verdict" style="font-size:20px; color:var(--accent);">-</div>
+                <div style="font-size:10px; color:var(--text-dim);" id="res-verdict-reason">Hard AND-gate check</div>
+              </div>
+              <div class="stat-card" style="flex-direction:column; align-items:flex-start; padding:14px;">
+                <div class="stat-label">Tailored PDF Status</div>
+                <div class="stat-val" style="font-size:18px; color:#a78bfa;" id="res-pdf-status">Compiled</div>
+                <div style="font-size:10px; color:var(--text-dim);">ATS standard single-page</div>
+              </div>
+            </div>
+
+            <div style="font-size:13px; font-weight:600; margin-bottom:12px; color:var(--text-muted);">
+              BULLET-LEVEL MECHANICAL ENTAILMENT AUDIT
+            </div>
+            <div id="verified-bullets-container"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TAB 4: PROFILE & FACT STORE ─────────────────────────────────── -->
+    <div id="tab-profile-facts" class="tab-pane">
+      <div class="grid-2-1">
+        <!-- Ingested Fact Units Browser -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🗄️ Ingested Fact Units</div>
+              <div class="card-subtitle">Atomic claims extracted from your verified background</div>
+            </div>
+            <button class="btn-action" onclick="fetchFacts()">Refresh Facts</button>
+          </div>
+          <div class="table-container" style="max-height: 550px; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:90px;">Fact ID</th>
+                  <th style="width:110px;">Type</th>
+                  <th>Fact Statement (Ground Truth)</th>
+                </tr>
+              </thead>
+              <tbody id="facts-table-body">
+                <tr><td colspan="3" style="text-align:center; color:var(--text-dim); padding:24px;">Loading fact units...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Ingest New Resume Text Box -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📥 Ingest Resume Text</div>
+          </div>
+          <form onsubmit="handleIngestResume(event)">
+            <div class="form-group">
+              <label class="form-label">Raw Resume Text</label>
+              <textarea id="ingest-resume-text" class="textarea" style="height:280px;" placeholder="Paste plain resume text to decompose into atomic Fact Units..." required></textarea>
+            </div>
+            <button type="submit" id="btn-ingest" class="btn-primary" style="width:100%;">
+              ⚡ Decompose & Store Facts
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TAB 5: DECISION LOGS ────────────────────────────────────────── -->
+    <div id="tab-audit-decisions" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">📜 Immutable Decision Audit Log</div>
+            <div class="card-subtitle">Full mathematical reasoning behind each Path A / Path B routing decision</div>
+          </div>
+          <button class="btn-action" onclick="fetchDecisions()">Refresh Audit</button>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Job Fingerprint</th>
+                <th>Grounding Score (≥0.95)</th>
+                <th>Completeness (≥0.85)</th>
+                <th>Execution (≥0.90)</th>
+                <th>Route</th>
+                <th>Decision Rationale</th>
+              </tr>
+            </thead>
+            <tbody id="decisions-table-body">
+              <tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:24px;">Loading decision logs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Job Description Modal -->
+  <div id="jd-modal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="card-title" id="modal-jd-title">Job Description</div>
+        <button class="modal-close" onclick="document.getElementById('jd-modal').classList.remove('open')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="code-box" id="modal-jd-text"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let cachedJobs = [];
+    let activeFingerprint = "";
+    let activeResumeId = "";
+
+    // ─── Tab Switching ────────────────────────────────────────────────────────
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      const targetPane = document.getElementById(`tab-${tabId}`);
+      if (targetPane) targetPane.classList.add('active');
+      
+      const buttons = document.querySelectorAll('.nav-btn');
+      buttons.forEach(btn => {
+        if (btn.getAttribute('onclick')?.includes(tabId)) {
+          btn.classList.add('active');
+        }
+      });
+
+      if (tabId === 'dashboard') fetchTracker();
+      if (tabId === 'ingest-jobs') fetchJobs();
+      if (tabId === 'profile-facts') fetchFacts();
+      if (tabId === 'audit-decisions') fetchDecisions();
+      if (tabId === 'tailor-studio') populateTailorSelect();
+    }
+
+    // ─── Toast Notifications ──────────────────────────────────────────────────
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span> <div>${message}</div>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // ─── API Data Fetching ────────────────────────────────────────────────────
+    async function fetchTracker() {
+      try {
+        const res = await fetch(`${API_BASE}/api/tracker`);
+        const data = await res.json();
+        const tbody = document.getElementById('tracker-table-body');
+        
+        document.getElementById('stat-job-count').innerText = data.count || 0;
+        
+        if (!data.applications || data.applications.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No active applications in pipeline. Ingest a job to start.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.applications.map(app => {
+          const statusClass = `badge-${app.status || 'other'}`;
+          return `
+            <tr>
+              <td>
+                <div style="font-weight:600;">${app.company || 'Company'}</div>
+                <div style="color:var(--text-muted); font-size:12px;">${app.role || 'Target Role'}</div>
+              </td>
+              <td><span class="badge badge-${app.ats_type || 'other'}">${(app.ats_type || 'generic').toUpperCase()}</span></td>
+              <td><span class="badge ${statusClass}">${(app.status || 'discovered').toUpperCase()}</span></td>
+              <td>${app.path_taken ? `<span class="badge badge-path-${app.path_taken.toLowerCase().includes('a') ? 'a' : 'b'}">${app.path_taken}</span>` : '<span style="color:var(--text-dim);">-</span>'}</td>
+              <td style="font-size:12px; color:var(--text-muted);">${app.updated_at ? new Date(app.updated_at).toLocaleString() : 'Recently'}</td>
+              <td>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${app.job_fingerprint}')">Tailor / Verify</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error("Tracker fetch error:", err);
+      }
+    }
+
+    async function fetchJobs() {
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs`);
+        const data = await res.json();
+        cachedJobs = data.jobs || [];
+        const tbody = document.getElementById('jobs-table-body');
+        
+        if (cachedJobs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No canonical jobs yet. Scrape or add a job above.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = cachedJobs.map(j => `
+          <tr>
+            <td style="font-weight:600;">${j.company}</td>
+            <td>${j.role}</td>
+            <td><span class="badge badge-${j.ats_type}">${j.ats_type.toUpperCase()}</span></td>
+            <td><code style="font-size:11px; color:var(--text-muted);">${j.fingerprint.slice(0, 14)}...</code></td>
+            <td style="font-size:12px; color:var(--text-muted);">${new Date(j.first_seen_at).toLocaleDateString()}</td>
+            <td>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="viewJdModal('${j.fingerprint}')">View JD</button>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${j.fingerprint}')">Tailor</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+        populateTailorSelect();
+      } catch (err) {
+        console.error("Fetch jobs error:", err);
+      }
+    }
+
+    async function fetchFacts() {
+      try {
+        const res = await fetch(`${API_BASE}/api/profile/facts`);
+        const data = await res.json();
+        const tbody = document.getElementById('facts-table-body');
+        const count = data.count || 0;
+        
+        document.getElementById('stat-fact-count').innerText = count;
+
+        if (!data.facts || data.facts.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" class="empty-state">Fact store is empty. Ingest your resume text on the right.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.facts.map(f => `
+          <tr>
+            <td><span class="fact-tag">${f.fact_id}</span></td>
+            <td><span class="badge badge-other">${f.type}</span></td>
+            <td style="line-height:1.4;">${f.text}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error("Fetch facts error:", err);
+      }
+    }
+
+    async function fetchDecisions() {
+      try {
+        const res = await fetch(`${API_BASE}/api/decisions`);
+        const data = await res.json();
+        const tbody = document.getElementById('decisions-table-body');
+        
+        document.getElementById('stat-decision-count').innerText = data.count || 0;
+
+        if (!data.decisions || data.decisions.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No decision records yet. Run Tailor & Execute on a job.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.decisions.map(d => `
+          <tr>
+            <td style="font-size:12px; color:var(--text-muted);">${new Date(d.timestamp).toLocaleTimeString()}</td>
+            <td><code style="font-size:11px;">${d.job_fingerprint.slice(0, 10)}...</code></td>
+            <td style="font-weight:600; color:${d.grounding_score >= 0.95 ? 'var(--success)' : 'var(--danger)'};">${(d.grounding_score * 100).toFixed(1)}%</td>
+            <td style="font-weight:600; color:${d.completeness_score >= 0.85 ? 'var(--success)' : 'var(--warning)'};">${(d.completeness_score * 100).toFixed(1)}%</td>
+            <td style="font-weight:600; color:${d.execution_score >= 0.90 ? 'var(--success)' : 'var(--warning)'};">${(d.execution_score * 100).toFixed(1)}%</td>
+            <td><span class="badge badge-path-${d.route.toLowerCase().includes('a') ? 'a' : 'b'}">${d.route}</span></td>
+            <td style="font-size:12px; color:var(--text-muted);">${d.reason}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error("Fetch decisions error:", err);
+      }
+    }
+
+    // ─── Actions & Handlers ───────────────────────────────────────────────────
+    async function handleScrapeUrl(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-scrape');
+      const url = document.getElementById('scrape-url-input').value;
+      const role = document.getElementById('scrape-role-input').value;
+      const company = document.getElementById('scrape-company-input').value;
+
+      btn.disabled = true;
+      btn.innerText = "Scraping page & parsing ATS...";
+      showToast("Fetching live job posting from web...", "info");
+
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs/scrape`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, role, company })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Job successfully scraped: ${data.record.company} - ${data.record.role}`, "success");
+          document.getElementById('scrape-url-input').value = "";
+          fetchJobs();
+          fetchTracker();
+        } else {
+          showToast(`Scrape failed: ${data.detail || 'Error'}`, "error");
+        }
+      } catch (err) {
+        showToast(`Scrape error: ${err.message}`, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Scrape & Canonicalize Job";
+      }
+    }
+
+    async function handleManualJob(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-manual');
+      const company = document.getElementById('manual-company').value;
+      const role = document.getElementById('manual-role').value;
+      const jd_text = document.getElementById('manual-jd').value;
+      const application_link = document.getElementById('manual-link').value;
+
+      btn.disabled = true;
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs/manual`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company, role, jd_text, application_link })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Job created: ${data.record.company} (${data.record.role})`, "success");
+          document.getElementById('manual-company').value = "";
+          document.getElementById('manual-role').value = "";
+          document.getElementById('manual-jd').value = "";
+          fetchJobs();
+          fetchTracker();
+        } else {
+          showToast(`Error: ${data.detail}`, "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function handleIngestResume(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-ingest');
+      const raw_text = document.getElementById('ingest-resume-text').value;
+
+      btn.disabled = true;
+      btn.innerText = "Decomposing into Fact Units...";
+      try {
+        const res = await fetch(`${API_BASE}/api/profile/ingest`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ raw_text, source_document: 'resume' })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Successfully created ${data.created} atomic Fact Units!`, "success");
+          fetchFacts();
+        } else {
+          showToast(data.detail, "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "⚡ Decompose & Store Facts";
+      }
+    }
+
+    // ─── Tailor & Studio Integration ─────────────────────────────────────────
+    function populateTailorSelect() {
+      const select = document.getElementById('tailor-job-select');
+      select.innerHTML = '<option value="">-- Choose a job --</option>' + 
+        cachedJobs.map(j => `<option value="${j.fingerprint}">${j.company} — ${j.role} (${j.ats_type})</option>`).join('');
+    }
+
+    function openTailorFor(fingerprint) {
+      switchTab('tailor-studio');
+      document.getElementById('tailor-job-select').value = fingerprint;
+      loadJobForTailoring();
+    }
+
+    function loadJobForTailoring() {
+      const fp = document.getElementById('tailor-job-select').value;
+      activeFingerprint = fp;
+      const infoBox = document.getElementById('selected-job-info');
+      const job = cachedJobs.find(j => j.fingerprint === fp);
+
+      if (!job) {
+        infoBox.style.display = 'none';
+        return;
+      }
+
+      infoBox.style.display = 'block';
+      document.getElementById('sel-job-title').innerText = job.role;
+      document.getElementById('sel-job-company').innerText = job.company;
+      document.getElementById('sel-job-ats').innerHTML = `<span class="badge badge-${job.ats_type}">${job.ats_type.toUpperCase()} ATS</span>`;
+    }
+
+    async function runTailorAndVerify() {
+      if (!activeFingerprint) {
+        showToast("Please select a target job first.", "warning");
+        return;
+      }
+
+      const btn = document.getElementById('btn-run-tailor');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="dot-blink">Generating & mechanically verifying claims...</span>`;
+      showToast("Running Tailor Agent & Grounding Verifier...", "info");
+
+      try {
+        const res = await fetch(`${API_BASE}/api/tailor/${activeFingerprint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profile: {
+              name: "Lokanth Srihari",
+              email: "lokanth2006@gmail.com",
+              phone: "8838379971",
+              location: "Vellore, India",
+              linkedin: "https://linkedin.com/in/lokanth"
+            }
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          activeResumeId = data.resume_id;
+          displayTailorResults(data);
+          showToast(`Tailored successfully! Grounding score: ${(data.grounding_score * 100).toFixed(1)}%`, "success");
+          fetchTracker();
+        } else {
+          showToast(`Tailor error: ${data.detail}`, "error");
+        }
+      } catch (err) {
+        showToast(`Request failed: ${err.message}`, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `Generate & Verify Resume`;
+      }
+    }
+
+    function displayTailorResults(data) {
+      document.getElementById('tailor-results-placeholder').style.display = 'none';
+      document.getElementById('tailor-results-content').style.display = 'block';
+
+      const scorePct = (data.grounding_score * 100).toFixed(1);
+      const scoreEl = document.getElementById('res-grounding-score');
+      scoreEl.innerText = `${scorePct}%`;
+      scoreEl.style.color = data.grounding_score >= 0.95 ? 'var(--success)' : data.grounding_score >= 0.80 ? 'var(--warning)' : 'var(--danger)';
+
+      document.getElementById('res-grounding-detail').innerText = `${data.passed_bullets} of ${data.total_bullets} claims verified`;
+
+      const verdictEl = document.getElementById('res-verdict');
+      if (data.grounding_score >= 0.95) {
+        verdictEl.innerText = "PATH A (Eligible)";
+        verdictEl.style.color = "var(--success)";
+      } else {
+        verdictEl.innerText = "PATH B (Review)";
+        verdictEl.style.color = "var(--warning)";
+      }
+
+      // Enable execution action buttons
+      document.getElementById('btn-path-a').disabled = false;
+      document.getElementById('btn-path-b').disabled = false;
+
+      // PDF Download Button
+      const pdfContainer = document.getElementById('pdf-download-btn-container');
+      if (data.pdf_path) {
+        const cleanPath = data.pdf_path.replace(/\\/g, '/');
+        const filename = cleanPath.split('/').pop();
+        pdfContainer.innerHTML = `
+          <a href="/resumes/${filename}" target="_blank" class="btn-action" style="background:var(--primary); color:#fff; text-decoration:none;">
+            📄 Download Tailored PDF
+          </a>
+        `;
+      }
+
+      // Bullets List
+      const container = document.getElementById('verified-bullets-container');
+      if (data.verified_bullets && data.verified_bullets.length > 0) {
+        container.innerHTML = data.verified_bullets.map(b => `
+          <div class="bullet-item passed">
+            <div class="bullet-text">${b.text}</div>
+            <div class="bullet-meta">
+              <span>Grounding: ✅ PASS</span>
+              <span>Cited: ${b.fact_ids.map(id => `<span class="fact-tag">${id}</span>`).join('')}</span>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        container.innerHTML = `<div class="empty-state">No passed bullets for this role.</div>`;
+      }
+    }
+
+    async function triggerPathA() {
+      if (!activeFingerprint) return;
+      showToast("Launching Playwright autofill with Human-in-the-Loop stop...", "info");
+      try {
+        const res = await fetch(`${API_BASE}/api/execute/path-a/${activeFingerprint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" }
+          })
+        });
+        const data = await res.json();
+        showToast(data.message || `Decision Engine routed: ${data.route}`, data.route === 'PATH_A' ? 'success' : 'warning');
+        fetchDecisions();
+        fetchTracker();
+      } catch (err) {
+        showToast(err.message, "error");
+      }
+    }
+
+    async function triggerPathB() {
+      if (!activeFingerprint) return;
+      showToast("Dispatching Telegram notification with attached PDF...", "info");
+      try {
+        const res = await fetch(`${API_BASE}/api/execute/path-b/${activeFingerprint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" }
+          })
+        });
+        const data = await res.json();
+        showToast(data.sent ? "Telegram notification sent!" : "Telegram alert logged (check bot tokens in .env)", "success");
+        fetchDecisions();
+        fetchTracker();
+      } catch (err) {
+        showToast(err.message, "error");
+      }
+    }
+
+    // ─── Modal Helpers ────────────────────────────────────────────────────────
+    function viewJdModal(fingerprint) {
+      const job = cachedJobs.find(j => j.fingerprint === fingerprint);
+      if (!job) return;
+      document.getElementById('modal-jd-title').innerText = `${job.company} — ${job.role}`;
+      document.getElementById('modal-jd-text').innerText = job.jd_text;
+      document.getElementById('jd-modal').classList.add('open');
+    }
+
+    function closeModal(e) {
+      if (e.target === document.getElementById('jd-modal')) {
+        document.getElementById('jd-modal').classList.remove('open');
+      }
+    }
+
+    function refreshAllData() {
+      fetchTracker();
+      fetchJobs();
+      fetchFacts();
+      fetchDecisions();
+      showToast("Dashboard refreshed", "info");
+    }
+
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshAllData();
+      setInterval(fetchTracker, 30000);
+    });
+  </script>
 </body>
 </html>

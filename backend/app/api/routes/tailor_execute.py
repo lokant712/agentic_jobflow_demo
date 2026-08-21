@@ -4,7 +4,9 @@ Tailor & Execute API routes — FR-5.x, FR-6.x, FR-7.x, FR-8.x, FR-9.x
 from __future__ import annotations
 import asyncio
 import logging
+import os
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.app.db.database import get_db
@@ -136,6 +138,31 @@ async def tailor(
             for r in verification.bullet_results
         ],
     }
+
+
+@router.get("/resumes/{fingerprint}/latest", summary="Get latest tailored resume for a job")
+async def get_latest_resume(fingerprint: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(TailoredResume)
+        .where(TailoredResume.job_fingerprint == fingerprint)
+        .order_by(TailoredResume.created_at.desc())
+    )
+    resume = result.scalars().first()
+    if not resume:
+        raise HTTPException(status_code=404, detail="No tailored resume found for this job")
+    return resume.to_dict()
+
+
+@router.get("/resumes/{resume_id}/pdf", summary="Download/view tailored resume PDF")
+async def download_resume_pdf(resume_id: str, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(TailoredResume).where(TailoredResume.resume_id == resume_id)
+    )
+    resume = result.scalar_one_or_none()
+    if not resume or not resume.pdf_path or not os.path.exists(resume.pdf_path):
+        raise HTTPException(status_code=404, detail="PDF file not found")
+    return FileResponse(resume.pdf_path, media_type="application/pdf", filename=f"resume_{resume_id}.pdf")
+
 
 
 @router.post("/execute/path-a/{fingerprint}", summary="Launch Path A Playwright auto-fill")

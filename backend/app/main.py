@@ -79,7 +79,11 @@ def create_app() -> FastAPI:
     app.include_router(jobs.router)
     app.include_router(tailor_execute.router)
 
-    # ── Static files (bare-bones status page) ───────────────────────────────
+    # ── Static files & PDF Storage ──────────────────────────────────────────
+    resume_dir = Path(settings.resume_output_dir)
+    resume_dir.mkdir(parents=True, exist_ok=True)
+    app.mount("/resumes", StaticFiles(directory=str(resume_dir)), name="resumes")
+
     static_dir = Path(__file__).parent / "static"
     if static_dir.exists():
         app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
