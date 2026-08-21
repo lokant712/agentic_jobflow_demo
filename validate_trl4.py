@@ -31,6 +31,11 @@ from pathlib import Path
 # Make sure the project root is on sys.path
 sys.path.insert(0, str(Path(__file__).parent))
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 from dotenv import load_dotenv
 load_dotenv()
 
