@@ -55,21 +55,24 @@ class ClaudeClient(LLMClient):
         return _extract_json(text)
 
 
-# ─── Gemini Client ────────────────────────────────────────────────────────────
+# ─── Gemini Client (google-genai SDK) ────────────────────────────────────────
 
 class GeminiClient(LLMClient):
     def __init__(self, api_key: str, model: str):
         try:
-            import google.generativeai as genai
+            from google import genai
         except ImportError as exc:
-            raise RuntimeError("google-generativeai package not installed") from exc
-        genai.configure(api_key=api_key)
-        self._model = genai.GenerativeModel(model)
+            raise RuntimeError("google-genai package not installed. Run: pip install google-genai") from exc
+        self._client = genai.Client(api_key=api_key)
+        self.model = model
 
     async def complete(self, prompt: str, max_tokens: int = 2048, **kwargs) -> str:
-        response = await self._model.generate_content_async(
-            prompt,
-            generation_config={"max_output_tokens": max_tokens},
+        from google import genai
+        from google.genai import types
+        response = await self._client.aio.models.generate_content(
+            model=self.model,
+            contents=prompt,
+            config=types.GenerateContentConfig(max_output_tokens=max_tokens),
         )
         return response.text
 
@@ -169,6 +172,10 @@ def get_llm_client(provider: str | None = None, model: str | None = None) -> LLM
     """
     Factory function. Reads from settings if not provided.
     provider: "claude" | "gemini" | "offline"
+    Models:
+      gemini  → e.g. "gemini-2.0-flash" (fast, cheap) or "gemini-1.5-pro"
+      claude  → e.g. "claude-sonnet-4-5"
+      offline → deterministic heuristic, no API cost (CI default)
     """
     from backend.app.config import get_settings
 
