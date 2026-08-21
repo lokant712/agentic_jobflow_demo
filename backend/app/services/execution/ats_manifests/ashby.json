@@ -1,0 +1,34 @@
+{
+  "ashby": {
+    "platform": "ashby",
+    "version": "2024-01",
+    "description": "Ashby HQ ATS standard application form required fields",
+    "required_fields": [
+      {"id": "name",     "label": "Full Name", "type": "text",  "profile_key": "full_name"},
+      {"id": "email",    "label": "Email",     "type": "email", "profile_key": "email"},
+      {"id": "phone",    "label": "Phone",     "type": "tel",   "profile_key": "phone"},
+      {"id": "resume",   "label": "Resume",    "type": "file",  "profile_key": "resume_pdf_path"},
+      {"id": "linkedin", "label": "LinkedIn",  "type": "url",   "profile_key": "linkedin", "required": false}
+    ],
+    "selectors": {
+      "name":     "input[data-testid='name-input'], input[name='name'], input[placeholder*='Name']",
+      "email":    "input[data-testid='email-input'], input[type='email']",
+      "phone":    "input[data-testid='phone-input'], input[type='tel']",
+      "resume":   "input[type='file']",
+      "linkedin": "input[placeholder*='LinkedIn'], input[name*='linkedin']"
+    },
+    "submit_selectors": [
+      "button[type='submit']",
+      "button[data-testid='submit-application-button']",
+      "button:contains('Submit')",
+      "button:contains('Apply')"
+    ],
+    "bot_challenge_indicators": [
+      "iframe[src*='recaptcha']",
+      "iframe[src*='hcaptcha']",
+      ".cf-challenge",
+      "#challenge-form",
+      "iframe[src*='turnstile']"
+    ]
+  }
+}

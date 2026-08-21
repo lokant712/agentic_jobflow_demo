@@ -1,0 +1,36 @@
+{
+  "lever": {
+    "platform": "lever",
+    "version": "2024-01",
+    "description": "Lever ATS standard application form required fields",
+    "required_fields": [
+      {"id": "name",         "label": "Full Name",   "type": "text",  "profile_key": "full_name"},
+      {"id": "email",        "label": "Email",       "type": "email", "profile_key": "email"},
+      {"id": "phone",        "label": "Phone",       "type": "tel",   "profile_key": "phone"},
+      {"id": "resume",       "label": "Resume",      "type": "file",  "profile_key": "resume_pdf_path"},
+      {"id": "org",          "label": "Company",     "type": "text",  "profile_key": "current_company", "required": false},
+      {"id": "urls[LinkedIn]","label": "LinkedIn",   "type": "url",   "profile_key": "linkedin", "required": false}
+    ],
+    "selectors": {
+      "name":           "input[name='name']",
+      "email":          "input[name='email']",
+      "phone":          "input[name='phone']",
+      "resume":         "input[type='file']",
+      "org":            "input[name='org']",
+      "urls[LinkedIn]": "input[name='urls[LinkedIn]']"
+    },
+    "submit_selectors": [
+      "button[type='submit']",
+      "input[type='submit']",
+      "button.postings-btn",
+      "button:contains('Submit application')"
+    ],
+    "bot_challenge_indicators": [
+      "iframe[src*='recaptcha']",
+      "iframe[src*='hcaptcha']",
+      ".cf-challenge",
+      "#challenge-form",
+      "iframe[src*='turnstile']"
+    ]
+  }
+}

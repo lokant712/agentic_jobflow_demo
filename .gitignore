@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Credentials & secrets
+credentials/
+*.json.key
+*.pem
+*service_account*.json
+*secret*.json
+google_credentials.json
+
+# Data files (potentially large / sensitive)
+data/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.xml
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/

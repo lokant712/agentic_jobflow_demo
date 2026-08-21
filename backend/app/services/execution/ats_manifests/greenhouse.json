@@ -1,0 +1,40 @@
+{
+  "greenhouse": {
+    "platform": "greenhouse",
+    "version": "2024-01",
+    "description": "Greenhouse ATS standard application form required fields",
+    "required_fields": [
+      {"id": "first_name",       "label": "First Name",        "type": "text",     "profile_key": "first_name"},
+      {"id": "last_name",        "label": "Last Name",         "type": "text",     "profile_key": "last_name"},
+      {"id": "email",            "label": "Email",             "type": "email",    "profile_key": "email"},
+      {"id": "phone",            "label": "Phone",             "type": "tel",      "profile_key": "phone"},
+      {"id": "resume",           "label": "Resume",            "type": "file",     "profile_key": "resume_pdf_path"},
+      {"id": "location",         "label": "Location",          "type": "text",     "profile_key": "location"},
+      {"id": "linkedin_profile", "label": "LinkedIn Profile",  "type": "url",      "profile_key": "linkedin"},
+      {"id": "cover_letter",     "label": "Cover Letter",      "type": "textarea", "profile_key": "cover_letter", "required": false}
+    ],
+    "selectors": {
+      "first_name":       "input[name='job_application[first_name]'], input#first_name",
+      "last_name":        "input[name='job_application[last_name]'], input#last_name",
+      "email":            "input[name='job_application[email]'], input#email",
+      "phone":            "input[name='job_application[phone]'], input#phone",
+      "resume":           "input[type='file'][name*='resume'], input#resume",
+      "location":         "input[name='job_application[location]'], input#location",
+      "linkedin_profile": "input[name*='linkedin'], input[placeholder*='LinkedIn']",
+      "cover_letter":     "textarea[name*='cover_letter'], textarea#cover_letter"
+    },
+    "submit_selectors": [
+      "input[type='submit']",
+      "button[type='submit']",
+      "button:contains('Submit Application')",
+      "button:contains('Apply')"
+    ],
+    "bot_challenge_indicators": [
+      "iframe[src*='recaptcha']",
+      "iframe[src*='hcaptcha']",
+      ".cf-challenge",
+      "#challenge-form",
+      "iframe[src*='turnstile']"
+    ]
+  }
+}
