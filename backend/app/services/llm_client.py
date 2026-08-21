@@ -1,12 +1,12 @@
 """
-Pluggable LLM client — abstracts Gemini, Claude, and offline heuristic backends.
+Pluggable LLM client — abstracts Gemini, Claude, Groq, and offline heuristic backends.
 
 The offline backend is a deterministic heuristic generator that:
   - Produces valid structured JSON matching the Tailor Agent's expected output format
   - Uses only the provided fact texts (no hallucination possible)
   - Is suitable for CI testing without API keys
 
-Switch via LLM_PROVIDER env var: "claude" | "gemini" | "offline"
+Switch via LLM_PROVIDER env var: "claude" | "gemini" | "groq" | "offline"
 """
 
 from __future__ import annotations
@@ -80,8 +80,40 @@ class GeminiClient(LLMClient):
         text = await self.complete(prompt, max_tokens, **kwargs)
         return _extract_json(text)
 
+# ─── Groq Client ─────────────────────────────────────────────────────────────
 
-# ─── Offline / Heuristic Client ───────────────────────────────────────────────
+class GroqClient(LLMClient):
+    """
+    Groq API client (OpenAI-compatible).
+    Recommended models:
+      - llama-3.3-70b-versatile   (best quality, free tier: 14,400 req/day)
+      - llama-3.1-8b-instant      (fastest)
+      - moonshotai/kimi-k1.5-32b  (strong reasoning)
+    Free tier: https://console.groq.com
+    """
+    def __init__(self, api_key: str, model: str):
+        try:
+            from groq import AsyncGroq
+        except ImportError as exc:
+            raise RuntimeError(
+                "groq package not installed. Run: pip install groq"
+            ) from exc
+        self._client = AsyncGroq(api_key=api_key)
+        self.model = model
+
+    async def complete(self, prompt: str, max_tokens: int = 4096, **kwargs) -> str:
+        response = await self._client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=max_tokens,
+        )
+        return response.choices[0].message.content
+
+    async def complete_json(self, prompt: str, max_tokens: int = 4096, **kwargs) -> Any:
+        text = await self.complete(prompt, max_tokens, **kwargs)
+        return _extract_json(text)
+
+
 
 class OfflineHeuristicClient(LLMClient):
     """
@@ -171,10 +203,11 @@ def _extract_json(text: str) -> Any:
 def get_llm_client(provider: str | None = None, model: str | None = None) -> LLMClient:
     """
     Factory function. Reads from settings if not provided.
-    provider: "claude" | "gemini" | "offline"
+    provider: "claude" | "gemini" | "groq" | "offline"
     Models:
-      gemini  → e.g. "gemini-2.0-flash" (fast, cheap) or "gemini-1.5-pro"
+      gemini  → e.g. "gemini-3.6-flash"
       claude  → e.g. "claude-sonnet-4-5"
+      groq    → e.g. "llama-3.3-70b-versatile" (14,400 req/day free)
       offline → deterministic heuristic, no API cost (CI default)
     """
     from backend.app.config import get_settings
@@ -193,7 +226,12 @@ def get_llm_client(provider: str | None = None, model: str | None = None) -> LLM
             raise ValueError("GEMINI_API_KEY not set in environment")
         return GeminiClient(api_key=settings.gemini_api_key, model=model)
 
+    if provider == "groq":
+        if not settings.groq_api_key:
+            raise ValueError("GROQ_API_KEY not set in environment")
+        return GroqClient(api_key=settings.groq_api_key, model=model)
+
     if provider == "offline":
         return OfflineHeuristicClient()
 
-    raise ValueError(f"Unknown LLM provider: {provider!r}. Use 'claude', 'gemini', or 'offline'.")
+    raise ValueError(f"Unknown LLM provider: {provider!r}. Use 'claude', 'gemini', 'groq', or 'offline'.")

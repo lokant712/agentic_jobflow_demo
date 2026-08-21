@@ -14,10 +14,11 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # ── LLM ─────────────────────────────────────────────────────────────────
+    # ── LLM ──────────────────────────────────────────────────────────────────────
     anthropic_api_key: str = ""
     gemini_api_key: str = ""
-    llm_provider: str = "offline"  # "claude" | "gemini" | "offline"
+    groq_api_key: str = ""
+    llm_provider: str = "offline"  # "claude" | "gemini" | "groq" | "offline"
     llm_model: str = "claude-sonnet-4-5"
 
     verifier_llm_provider: str = "offline"
