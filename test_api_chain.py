@@ -1,12 +1,11 @@
-"""
-End-to-end API chain test.
-Runs: profile ingest → job canonicalize → tailor → decision engine
-"""
 import asyncio
 import json
 import sys
 import urllib.request
 import urllib.error
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 BASE = "http://127.0.0.1:8000"
 

@@ -158,7 +158,7 @@ async def execute_path_a(
         .where(TailoredResume.job_fingerprint == fingerprint)
         .order_by(TailoredResume.created_at.desc())
     )
-    resume = result.scalar_one_or_none()
+    resume = result.scalars().first()
     if not resume:
         raise HTTPException(status_code=422, detail="No tailored resume found. Run /tailor first.")
 
@@ -229,7 +229,7 @@ async def execute_path_b(
         .where(TailoredResume.job_fingerprint == fingerprint)
         .order_by(TailoredResume.created_at.desc())
     )
-    resume = result.scalar_one_or_none()
+    resume = result.scalars().first()
     if not resume:
         raise HTTPException(status_code=422, detail="No tailored resume found. Run /tailor first.")
 
