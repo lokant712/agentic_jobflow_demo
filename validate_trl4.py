@@ -201,7 +201,295 @@ Projects you'll work on:
 - Dashboard and visualization creation
         """,
     },
+    # ── Batch 2: Stress-test roles (partial match / mismatch) ─────────────────
+    {
+        "company": "NLP Innovations",
+        "role": "NLP Engineer",
+        "ats_type": "greenhouse",
+        "jd": """
+We are looking for an NLP Engineer to join our language AI team.
+
+Requirements:
+- Experience with text processing pipelines (tokenization, embedding, similarity)
+- Sentence Transformers, HuggingFace Transformers, or similar
+- Python, NumPy, Pandas for data manipulation
+- Familiarity with LLM prompt engineering and RAG architectures
+- FAISS, ChromaDB, or other vector store experience
+- Strong understanding of semantic search and information retrieval
+
+Responsibilities:
+- Build and maintain NLP pipelines for production use
+- Research and implement state-of-the-art embedding models
+- Evaluate retrieval quality and optimize chunking strategies
+        """,
+    },
+    {
+        "company": "AgentTech Labs",
+        "role": "AI Agent Developer",
+        "ats_type": "lever",
+        "jd": """
+Build the next generation of autonomous AI agents.
+
+Requirements:
+- Python proficiency for agentic system development
+- Experience with LLM APIs (Gemini, OpenAI, Claude)
+- Multi-channel bot development (Telegram, Slack, Discord)
+- Understanding of tool-use, function calling, and agent orchestration
+- REST API development and integration
+- Streamlit or similar for rapid prototyping of agent interfaces
+
+Nice to have:
+- Experience with LangChain, LlamaIndex, or custom agent frameworks
+- Multi-step reasoning and task planning implementations
+        """,
+    },
+    {
+        "company": "OpenData Foundation",
+        "role": "Data Analyst",
+        "ats_type": "ashby",
+        "jd": """
+Join our open data team as a Data Analyst.
+
+Requirements:
+- Python (Pandas, NumPy, Matplotlib, Seaborn) for data analysis
+- SQL for data extraction and querying
+- Statistical analysis and hypothesis testing
+- Experience with EDA and data visualization
+- Clear communication of data insights to non-technical stakeholders
+- Experience with classification or regression models a plus
+
+Responsibilities:
+- Analyze large datasets and produce actionable insights
+- Create dashboards and visualization reports
+- Support data-driven decision making across teams
+        """,
+    },
+    {
+        "company": "MedAI Startup",
+        "role": "Junior ML Engineer",
+        "ats_type": "greenhouse",
+        "jd": """
+Early-stage health AI startup hiring a Junior ML Engineer.
+
+Requirements:
+- Scikit-Learn for ML model development
+- Python, Pandas, NumPy
+- Experience with classification tasks on real datasets
+- Preprocessing skills: missing value handling, feature scaling, encoding
+- Model evaluation: precision, recall, F1, confusion matrices
+- Familiarity with train/test splits and cross-validation
+
+We work on medical imaging and patient outcome prediction.
+        """,
+    },
+    {
+        "company": "StreamAI",
+        "role": "Generative AI Developer",
+        "ats_type": "lever",
+        "jd": """
+We are building generative AI products for enterprise customers.
+
+Requirements:
+- Experience with LLM integration (Gemini, GPT, Claude)
+- Prompt engineering and output control
+- Python backend development
+- API design and integration (REST)
+- Streamlit or Gradio for demo and prototype interfaces
+- Understanding of hallucination mitigation techniques
+
+Bonus:
+- RAG pipeline experience
+- Multi-modal AI (text + image)
+- Experience deploying AI products to real users
+        """,
+    },
+    # ── Batch 3: Partial/mismatch roles (stress test — LLM must resist hallucination) ──
+    {
+        "company": "FinanceCore",
+        "role": "Quantitative Analyst",
+        "ats_type": "other",
+        "jd": """
+Quantitative Analyst for a leading financial services firm.
+
+Requirements:
+- Advanced mathematics: stochastic calculus, linear algebra, probability
+- Python or R for quantitative modeling
+- Experience with options pricing, risk models, or portfolio optimization
+- SQL and large financial dataset processing
+- Familiarity with Bloomberg or financial data APIs
+- 3+ years of experience in a quantitative finance role
+
+We need someone with deep domain expertise in derivatives and risk management.
+        """,
+    },
+    {
+        "company": "CloudOps Inc",
+        "role": "DevOps / SRE Engineer",
+        "ats_type": "greenhouse",
+        "jd": """
+Senior DevOps/SRE Engineer to manage our cloud infrastructure.
+
+Requirements:
+- 4+ years of DevOps/SRE experience
+- Kubernetes, Docker, Helm for container orchestration
+- Terraform or Ansible for infrastructure-as-code
+- CI/CD pipelines: GitHub Actions, Jenkins, ArgoCD
+- AWS or GCP expertise (certifications preferred)
+- Monitoring: Prometheus, Grafana, Datadog
+- On-call experience and incident response
+
+You will own production reliability for systems serving millions of users.
+        """,
+    },
+    {
+        "company": "MobileFirst",
+        "role": "iOS Developer",
+        "ats_type": "ashby",
+        "jd": """
+iOS Developer to build consumer-facing mobile applications.
+
+Requirements:
+- Swift and SwiftUI for iOS development
+- Xcode proficiency
+- UIKit and Core Data experience
+- REST API integration from mobile clients
+- App Store submission and TestFlight experience
+- 2+ years of professional iOS development
+
+Nice to have: React Native for cross-platform development.
+        """,
+    },
+    {
+        "company": "EmbeddedSys",
+        "role": "Embedded Systems Engineer",
+        "ats_type": "other",
+        "jd": """
+Embedded Systems Engineer for IoT product development.
+
+Requirements:
+- C/C++ for embedded firmware development
+- Microcontroller programming (STM32, ESP32, Arduino)
+- RTOS experience (FreeRTOS preferred)
+- Hardware debugging (oscilloscope, logic analyzer)
+- I2C, SPI, UART communication protocols
+- PCB design knowledge (KiCad or Altium) a plus
+
+You will work directly with hardware teams to bring IoT products to market.
+        """,
+    },
+    # ── Batch 4: Closely matched senior roles (test for metric hallucination) ───
+    {
+        "company": "VectorDB Co",
+        "role": "Senior ML Engineer - Search",
+        "ats_type": "greenhouse",
+        "jd": """
+Senior ML Engineer to build and scale our vector search infrastructure.
+
+Requirements:
+- 3+ years of ML engineering experience
+- Vector search systems: FAISS, Annoy, ScaNN
+- Embedding models: Sentence Transformers, OpenAI embeddings
+- Python, strong software engineering fundamentals
+- Experience scaling ML systems to production
+- Familiarity with RAG, semantic search, recommendation systems
+
+Bonus: experience with LLM fine-tuning or RLHF.
+        """,
+    },
+    {
+        "company": "Blockchain Ventures",
+        "role": "Smart Contract Developer",
+        "ats_type": "lever",
+        "jd": """
+Smart Contract Developer to build decentralized finance protocols.
+
+Requirements:
+- Solidity for EVM-compatible smart contract development
+- Hardhat or Truffle for development and testing
+- Web3.js or Ethers.js for dApp integration
+- Understanding of DeFi protocols (AMMs, lending, staking)
+- Security-first mindset: reentrancy, overflow, access control
+- React or Next.js for dApp frontends
+
+Experience with Supabase or similar for off-chain data storage is a plus.
+        """,
+    },
+    {
+        "company": "Streamlit Cloud",
+        "role": "Developer Advocate / ML Tools",
+        "ats_type": "ashby",
+        "jd": """
+Developer Advocate focused on ML tooling and data apps.
+
+Requirements:
+- Python proficiency
+- Experience building Streamlit, Gradio, or similar data apps
+- Understanding of ML workflows (training, evaluation, deployment)
+- Excellent communication skills — writing, demos, tutorials
+- Experience with LLM APIs and AI application development
+- GitHub for open-source contributions and community engagement
+
+You will create tutorials, demos, and example apps to help developers build faster.
+        """,
+    },
+    {
+        "company": "InsureTech",
+        "role": "Data Scientist - Predictive Modeling",
+        "ats_type": "greenhouse",
+        "jd": """
+Data Scientist to build predictive models for insurance risk assessment.
+
+Requirements:
+- Scikit-Learn, XGBoost, LightGBM for model development
+- Python, Pandas, NumPy for data manipulation
+- Statistical modeling: GLM, survival analysis, Bayesian methods
+- Model evaluation and calibration
+- SQL for data extraction
+- Strong EDA skills and domain curiosity
+
+You will build models that directly impact underwriting decisions.
+        """,
+    },
+    {
+        "company": "EdTech Platform",
+        "role": "Full Stack Developer",
+        "ats_type": "lever",
+        "jd": """
+Full Stack Developer to build our next-generation learning platform.
+
+Requirements:
+- React or Next.js for frontend
+- Python or Node.js backend
+- Supabase or Firebase for backend services
+- REST API design and integration
+- SQL and basic database design
+- Authentication and role-based access control
+
+Nice to have:
+- AI integration (LLM-powered tutoring or content generation)
+- Real-time features (websockets, live collaboration)
+        """,
+    },
+    {
+        "company": "OpenSource AI",
+        "role": "ML Research Engineer (Intern/Junior)",
+        "ats_type": "other",
+        "jd": """
+Research-oriented ML Engineer to work on open-source AI tooling.
+
+Requirements:
+- Python, strong fundamentals in ML
+- Scikit-Learn, PyTorch or TensorFlow for model development
+- Experience with model evaluation pipelines
+- GitHub for open-source collaboration
+- Written communication for documentation and blog posts
+- Curiosity about AI safety, interpretability, or alignment (preferred)
+
+This is a research-adjacent role — you'll build tools used by ML researchers worldwide.
+        """,
+    },
 ]
+
 
 
 # ==============================================================================

@@ -88,12 +88,23 @@ def extract_key_entities(text: str) -> list[str]:
     # Capitalized multi-word sequences (proper nouns / product names)
     # Require at least 2 consecutive capitalized words to avoid capturing
     # sentence-starting verbs (e.g. 'Collaborated', 'Increased').
+    # Additional guard: skip sequences where the first word is a common action verb
+    # (e.g. "Utilized Python" → first word "utilized" is a verb, not a proper noun).
+    _SKIP_VERBS = {
+        "utilized", "implemented", "built", "developed", "designed", "created",
+        "managed", "led", "performed", "conducted", "applied", "deployed", "integrated",
+        "improved", "reduced", "increased", "delivered", "collaborated", "contributed",
+        "architected", "automated", "optimized", "migrated", "established", "configured",
+        "maintained", "tested", "evaluated", "analyzed", "trained", "fine-tuned",
+    }
     capitalized = re.findall(r"\b[A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+)+\b", text)
     for cap in capitalized:
-        if len(cap) > 5:
+        first_word = cap.split()[0].lower()
+        if first_word not in _SKIP_VERBS and len(cap) > 5:
             entities.append(cap.lower())
 
     return list(set(entities))
+
 
 
 # ─── Entity Grounding Check ───────────────────────────────────────────────────
