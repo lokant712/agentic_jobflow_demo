@@ -66,7 +66,7 @@ class GeminiClient(LLMClient):
         self._client = genai.Client(api_key=api_key)
         self.model = model
 
-    async def complete(self, prompt: str, max_tokens: int = 2048, **kwargs) -> str:
+    async def complete(self, prompt: str, max_tokens: int = 4096, **kwargs) -> str:
         from google import genai
         from google.genai import types
         response = await self._client.aio.models.generate_content(
@@ -76,7 +76,7 @@ class GeminiClient(LLMClient):
         )
         return response.text
 
-    async def complete_json(self, prompt: str, max_tokens: int = 2048, **kwargs) -> Any:
+    async def complete_json(self, prompt: str, max_tokens: int = 4096, **kwargs) -> Any:
         text = await self.complete(prompt, max_tokens, **kwargs)
         return _extract_json(text)
 

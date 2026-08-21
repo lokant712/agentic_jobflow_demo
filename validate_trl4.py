@@ -47,115 +47,162 @@ from backend.app.services.tailoring.grounding_verifier import (
 # ==============================================================================
 
 RESUME_TEXT = """
-[PASTE YOUR RESUME TEXT HERE]
-
-Example format:
-John Doe | john@email.com | +91-XXXXXXXXXX
-
-EXPERIENCE
-Senior Software Engineer - Acme Corp (2021-2024)
-- Reduced API latency by 40% through Redis caching and query optimization
-- Led a team of 5 engineers to deliver a microservices migration on AWS
-- Built a real-time analytics pipeline using Kafka and Apache Spark processing 2M events/day
-
-Software Engineer - Beta Systems (2019-2021)
-- Developed REST APIs using Python FastAPI serving 50,000 daily active users
-- Improved test coverage from 45% to 92% using pytest and CI/CD on GitHub Actions
-- Reduced infrastructure costs by $120K/year by migrating to Kubernetes
-
-SKILLS
-Python, FastAPI, AWS, Kubernetes, Docker, PostgreSQL, Redis, Kafka, Apache Spark, React
+LOKANTH SRIHARI
+lokanth2006@gmail.com | 8838379971 | LinkedIn | GitHub
 
 EDUCATION
-B.Tech Computer Science - IIT Bombay (2015-2019), GPA: 8.7/10
+Integrated M.Tech in Computer Science Engineering (Data Science) - Vellore Institute of Technology, Vellore, Tamil Nadu (Expected May 2028), CGPA: 8.44/10
+
+* Concentrations: Data Science & Artificial Intelligence
+* Related Coursework: Data Structures & Algorithms, Objects & Design, Computer Organization & Programming, Combinatorics, Machine Learning, Artificial Intelligence, Object-Oriented Programming, Statistics & Applications
+
+PROJECTS & EXPERIENCE
+Machine Learning & Backend Developer - Customer Intelligence RAG System (Jan 2026 - Feb 2026)
+
+* Built a Retrieval-Augmented Generation (RAG) system to enable natural-language querying over customer feedback data
+* Implemented semantic search using Sentence Transformers (all-MiniLM-L6-v2) and FAISS for top-k vector similarity retrieval
+* Integrated Google Gemini 2.5 Flash for context-grounded answer generation with prompt constraints to reduce hallucination
+* Developed a Streamlit web interface and an asynchronous Telegram bot for multi-channel access
+* Designed a modular pipeline covering ingestion, indexing, retrieval, and generation for scalable querying
+
+Full Stack & Blockchain Developer - BloodLink (Aug 2025 - Oct 2025)
+
+* Built a full-stack blood donation platform using React, Tailwind, Supabase, and Edge Functions
+* Developed Solidity smart contracts for blockchain-based donor certificate verification
+* Integrated Google Gemini AI to create a real-time medical assistance chatbot
+* Implemented role-based dashboards and emergency request workflows
+* Implemented secure backend-front-end communication using Supabase Edge Functions
+
+Machine Learning Engineer - Donor Health Classification (Oct 2025 - Nov 2025)
+
+* Developed an SVM classifier achieving 91.5% accuracy on biochemical donor data
+* Implemented preprocessing steps including imputation, label encoding, feature scaling, and outlier handling
+* Performed GridSearchCV hyperparameter tuning and built evaluation modules using confusion matrices and F1-scores
+* Conducted EDA using heatmaps, pairplots, and distribution analysis
+* Applied stratified sampling to preserve class distribution across training and testing sets
+
+Software Developer - Automated Irrigation System (Mar 2025 - Apr 2025)
+
+* Implemented CSV-based sensor data processing for moisture, temperature, humidity, pH, and sunlight
+* Built threshold-based condition analysis and irrigation decision logic in C
+* Integrated modules for reading input, evaluating conditions, making decisions, and writing output
+* Contributed to system design, UML diagrams, and architecture documentation
+
+SKILLS
+Python, Java, JavaScript, C/C++, SQL, Scikit-Learn, NumPy, Pandas, Matplotlib, Seaborn, GitHub, Supabase, Cursor, Antigravity, AWS
+
+INTERESTS
+Artificial Intelligence, Generative AI, Full-Stack Development, Machine Learning, Cloud Architecture, AI Applications
 """
+
 
 JOB_DESCRIPTIONS = [
     {
-        "company": "DataFlow Inc",
-        "role": "Senior Backend Engineer",
+        "company": "Qdrant AI",
+        "role": "ML Engineer - RAG Systems",
         "ats_type": "greenhouse",
         "jd": """
-We are looking for a Senior Backend Engineer to join our platform team.
+We are hiring an ML Engineer focused on Retrieval-Augmented Generation systems.
 
 Requirements:
-- 5+ years of backend development experience
-- Strong Python skills, experience with FastAPI or Django
-- Experience with AWS or GCP cloud infrastructure
-- Experience with data pipelines and streaming systems (Kafka, Spark a plus)
-- PostgreSQL or similar relational databases
-- Docker and Kubernetes for containerized deployments
+- Experience building RAG pipelines (embedding, retrieval, generation)
+- Python proficiency; experience with LLM APIs (OpenAI, Gemini, Anthropic)
+- Vector databases: FAISS, Qdrant, Pinecone, or Chroma
+- Sentence Transformers or similar embedding models
+- Experience with NLP pipelines and semantic search
+- Strong understanding of prompt engineering and hallucination mitigation
 
-Responsibilities:
-- Design and implement scalable REST APIs handling millions of requests
-- Lead technical architecture decisions for platform services
-- Mentor junior engineers and conduct code reviews
+Nice to have:
+- Streamlit or Gradio for demo interfaces
+- Experience with chatbot or conversational AI systems
         """,
     },
     {
-        "company": "CloudScale Solutions",
-        "role": "Platform Engineer",
+        "company": "HealthTech Startup",
+        "role": "Machine Learning Engineer",
         "ats_type": "lever",
         "jd": """
-CloudScale is hiring a Platform Engineer to help build our infrastructure.
+Join our health-tech team building ML models for clinical data.
 
 Requirements:
-- Experience with Kubernetes and container orchestration
-- Infrastructure as Code (Terraform, Ansible)
-- CI/CD pipeline setup and maintenance
-- AWS/GCP/Azure cloud services
-- Python or Go for automation scripting
+- Scikit-Learn, XGBoost, or similar ML frameworks
+- Experience with classification problems on tabular/biomedical data
+- Python, Pandas, NumPy for data processing
+- Model evaluation: confusion matrices, F1-score, ROC-AUC
+- Data preprocessing: imputation, feature scaling, handling class imbalance
+- Experience with cross-validation and hyperparameter tuning
 
-We value candidates who have experience reducing cloud costs and improving reliability.
+Responsibilities:
+- Train and evaluate models on health/clinical datasets
+- Build preprocessing and feature engineering pipelines
+- Document experiments and present findings to clinical stakeholders
         """,
     },
     {
-        "company": "StreamAnalytics",
-        "role": "Data Engineer",
+        "company": "Chainvault",
+        "role": "Full Stack Web3 Developer",
         "ats_type": "ashby",
         "jd": """
-We're building the next generation of real-time data infrastructure.
+We are building decentralized applications and need a Full Stack Web3 Developer.
 
 Requirements:
-- 3+ years of data engineering experience
-- Apache Kafka, Apache Spark, or similar streaming technologies
-- Python and SQL proficiency
-- ETL pipeline design and optimization
-- Experience with high-volume data processing (millions of events)
+- React or Next.js for frontend development
+- Solidity for smart contract development
+- Web3.js or Ethers.js for blockchain interaction
+- Backend API development (Node.js or Python)
+- Experience with blockchain-based verification or certificate systems
+- Supabase, Firebase, or similar BaaS platforms
+
+Responsibilities:
+- Build user-facing dApps with wallet integration
+- Write and audit Solidity smart contracts
+- Integrate blockchain verification into web applications
         """,
     },
     {
-        "company": "FinTech Startup",
-        "role": "Full Stack Engineer",
+        "company": "Conversational AI Corp",
+        "role": "AI Application Developer",
         "ats_type": "greenhouse",
         "jd": """
-Join our fintech startup as a Full Stack Engineer.
+We're building AI-powered conversational products and need a developer who can
+bridge ML research and production applications.
 
 Requirements:
-- React or Vue.js for frontend development
-- Python or Node.js for backend
-- REST API design and development
-- PostgreSQL or MongoDB
-- Agile/Scrum methodology
+- Python for backend development
+- Experience with LLM APIs (Gemini, GPT, Claude)
+- Building chatbots or AI assistants (Telegram, Slack, web)
+- Prompt engineering and context management
+- REST API development
+- Streamlit or similar for rapid prototyping
+
+Nice to have:
+- Experience with multi-channel AI systems (web + mobile + messaging)
+- RAG or knowledge-base integration
         """,
     },
     {
-        "company": "AI Research Lab",
-        "role": "ML Infrastructure Engineer",
+        "company": "DataViz Labs",
+        "role": "Data Science Intern / Junior DS",
         "ats_type": "other",
         "jd": """
-We are looking for an ML Infrastructure Engineer to support our research team.
+We're looking for a data science intern or junior data scientist to join our analytics team.
 
 Requirements:
-- Experience with ML model serving infrastructure
-- Python, PyTorch or TensorFlow
-- Kubernetes for ML workloads
-- Strong software engineering fundamentals
+- Python, Pandas, NumPy, Matplotlib, Seaborn
+- Machine learning fundamentals: classification, regression, clustering
+- Exploratory Data Analysis (EDA) skills
+- Statistical knowledge: distributions, sampling, hypothesis testing
+- SQL for data querying
+- Strong communication skills to present findings
 
-You will bridge the gap between research and production ML systems.
+Projects you'll work on:
+- Customer segmentation and behavioral analysis
+- Predictive model development for business metrics
+- Dashboard and visualization creation
         """,
     },
 ]
+
 
 # ==============================================================================
 # Validation Engine
@@ -255,11 +302,26 @@ async def run_single_jd(client, facts: list[dict], job: dict, idx: int) -> dict:
     total = len(JOB_DESCRIPTIONS)
     print(f"\n[{idx+1}/{total}] Tailoring for: {job['company']} / {job['role']}")
 
-    try:
-        raw_bullets = await client.complete_json(prompt)
-    except Exception as e:
-        print(f"  ERROR: LLM call failed: {e}")
-        return {"company": job["company"], "role": job["role"], "error": str(e)}
+    # Retry up to 3 times for transient errors (503, rate limit)
+    raw_bullets = None
+    last_error = None
+    for attempt in range(3):
+        try:
+            raw_bullets = await client.complete_json(prompt)
+            break
+        except Exception as e:
+            last_error = e
+            err_str = str(e)
+            if "503" in err_str or "429" in err_str or "UNAVAILABLE" in err_str or "quota" in err_str.lower():
+                wait = 10 * (2 ** attempt)  # 10s, 20s, 40s
+                print(f"  Transient error (attempt {attempt+1}/3), retrying in {wait}s: {e}")
+                await asyncio.sleep(wait)
+            else:
+                break  # Non-transient error, don't retry
+
+    if raw_bullets is None:
+        print(f"  ERROR: LLM call failed after retries: {last_error}")
+        return {"company": job["company"], "role": job["role"], "error": str(last_error)}
 
     if not isinstance(raw_bullets, list):
         print(f"  ERROR: LLM returned non-list: {type(raw_bullets)}")
