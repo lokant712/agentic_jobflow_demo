@@ -667,6 +667,10 @@ async def main():
         print("\nERROR: GEMINI_API_KEY not set in .env")
         sys.exit(1)
 
+    if settings.llm_provider == "groq" and not settings.groq_api_key:
+        print("\nERROR: GROQ_API_KEY not set in .env")
+        sys.exit(1)
+
     if "[PASTE YOUR RESUME TEXT HERE]" in RESUME_TEXT:
         print("\nERROR: Replace RESUME_TEXT with your actual resume in validate_trl4.py")
         sys.exit(1)
