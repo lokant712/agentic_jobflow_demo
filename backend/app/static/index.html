@@ -647,6 +647,9 @@
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         Refresh
       </button>
+      <button class="btn-action" style="color:var(--danger); border-color:rgba(239,68,68,0.3);" onclick="clearAllJobs()">
+        🗑️ Clear All Jobs
+      </button>
       <a href="/docs" target="_blank" class="btn-action" style="text-decoration:none;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
         Swagger API
@@ -1823,6 +1826,22 @@
     function closeModal(e) {
       if (e.target === document.getElementById('jd-modal')) {
         document.getElementById('jd-modal').classList.remove('open');
+      }
+    }
+
+    async function clearAllJobs() {
+      if (!confirm("Are you sure you want to clear all jobs, pipeline applications, and tailored resumes?")) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/jobs`, { method: 'DELETE' });
+        const data = await res.json();
+        showToast(data.message || "All jobs cleared successfully!", "success");
+        selectedJobFingerprints.clear();
+        cachedJobs = [];
+        activeFingerprint = "";
+        activeResumeId = "";
+        refreshAllData();
+      } catch (err) {
+        showToast(err.message, "error");
       }
     }
 

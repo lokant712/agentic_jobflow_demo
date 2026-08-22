@@ -136,3 +136,17 @@ async def get_one(fingerprint: str, db: AsyncSession = Depends(get_db)):
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     return job.to_dict()
+
+
+@router.delete("", summary="Clear all canonical jobs and pipeline application records")
+async def clear_all_jobs(db: AsyncSession = Depends(get_db)):
+    from backend.app.db.models import CanonicalJobRecord, ApplicationRecord, TailoredResume, DecisionLog
+    from sqlalchemy import delete
+
+    await db.execute(delete(DecisionLog))
+    await db.execute(delete(TailoredResume))
+    await db.execute(delete(ApplicationRecord))
+    await db.execute(delete(CanonicalJobRecord))
+    await db.commit()
+
+    return {"message": "All jobs and associated application records have been cleared successfully."}
