@@ -14,7 +14,7 @@ from backend.app.db.models import ApplicationRecord, DecisionLog, TailoredResume
 from backend.app.services.ingestion.canonicalizer import get_job
 from backend.app.services.tailoring.tailor_agent import tailor_resume
 from backend.app.services.tailoring.grounding_verifier import verify_resume
-from backend.app.services.tailoring.pdf_generator import generate_resume_pdf
+from backend.app.services.tailoring.pdf_generator import generate_resume_pdf, _clean_text
 from backend.app.services.decision_engine import (
     compute_completeness_score,
     compute_execution_score,
@@ -81,9 +81,13 @@ async def tailor(
     # FR-6.x: Run Grounding Verifier
     verification = await verify_resume(db, resume)
 
-    # Save verification results on TailoredResume
+    # Save clean verification results on TailoredResume
+    clean_bullets = [
+        {"text": _clean_text(b.get("text", "")), "fact_ids": b.get("fact_ids", [])}
+        for b in verification.verified_bullets
+    ]
     resume.grounding_score = verification.grounding_score
-    resume.set_bullets(verification.verified_bullets)
+    resume.set_bullets(clean_bullets)
 
     # FR-5.3: Generate PDF resume
     profile_dict = req.profile.model_dump()

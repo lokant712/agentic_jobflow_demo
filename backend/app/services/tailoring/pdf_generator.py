@@ -7,11 +7,13 @@ Generates exact, pixel-perfect, ATS-compatible resumes matching the user's refer
 - Precise 2-column tables for Institute/Project and Location/Date
 - Indented circular bullet points
 - Fits perfectly on 1 standard Letter page with 36pt (0.5 in) margins
+- Complete Unicode sanitization (replaces non-breaking hyphens \u2011, \u2013 to eliminate black square ■ glyphs)
 """
 
 from __future__ import annotations
 
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -30,6 +32,31 @@ from reportlab.platypus import (
 
 from backend.app.config import get_settings
 from backend.app.db.models import TailoredResume
+
+
+def _clean_text(text: str) -> str:
+    """Sanitize text to prevent ReportLab missing-glyph black boxes (■)."""
+    if not text:
+        return ""
+    replacements = {
+        "\u2010": "-",
+        "\u2011": "-",
+        "\u2012": "-",
+        "\u2013": "-",
+        "\u2014": "-",
+        "\u2015": "-",
+        "\u2212": "-",
+        "&#8209;": "-",
+        "\u2018": "'",
+        "\u2019": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+        "\u00a0": " ",
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    # Remove any stray control chars
+    return re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]", "", text)
 
 
 def _build_styles():
@@ -151,13 +178,13 @@ def _add_section_header(title: str, styles: dict) -> list:
 
 
 def _build_header(profile: dict, styles: dict) -> list:
-    name = profile.get("name") or "LOKANTH SRIHARI"
+    name = _clean_text(profile.get("name") or "LOKANTH SRIHARI")
     elements = [Paragraph(name.upper(), styles["name"])]
 
-    email = profile.get("email", "lokanth2006@gmail.com")
-    phone = profile.get("phone", "8838379971")
-    linkedin = profile.get("linkedin", "https://linkedin.com/in/lokanth")
-    github = profile.get("github", "https://github.com/lokant712")
+    email = _clean_text(profile.get("email", "lokanth2006@gmail.com"))
+    phone = _clean_text(profile.get("phone", "8838379971"))
+    linkedin = _clean_text(profile.get("linkedin", "https://linkedin.com/in/lokanth"))
+    github = _clean_text(profile.get("github", "https://github.com/lokant712"))
 
     contact_html = (
         f"<a href='mailto:{email}' color='#0000ee'>{email}</a> | {phone} | "
@@ -187,7 +214,7 @@ def _build_education_section(styles: dict) -> list:
         "Related Coursework: Data Structures & Algorithms, Objects & Design, Computer Organization & Programming, Combinatorics, Machine Learning, Artificial Intelligence, Object-Oriented Programming, Statistics & Applications",
     ]
     for b in edu_bullets:
-        elements.append(Paragraph(f"&nbsp;&nbsp;◦&nbsp;&nbsp;{b}", styles["bullet"]))
+        elements.append(Paragraph(f"&nbsp;&nbsp;◦&nbsp;&nbsp;{_clean_text(b)}", styles["bullet"]))
 
     elements.append(Spacer(1, 4))
     return elements
@@ -212,7 +239,7 @@ def _build_projects_experience(
 
     if tailored_bullets:
         for b in tailored_bullets[:5]:
-            text = b.get("text", "").strip()
+            text = _clean_text(b.get("text", "").strip())
             if text:
                 elements.append(Paragraph(f"•&nbsp;&nbsp;{text}", styles["bullet"]))
     else:
@@ -238,7 +265,7 @@ def _build_projects_experience(
     elements.append(Paragraph("•&nbsp;&nbsp;Developed Solidity smart contracts for blockchain-based donor certificate verification.", styles["bullet"]))
     elements.append(Paragraph("•&nbsp;&nbsp;Integrated Google Gemini AI to create a real-time medical assistance chatbot.", styles["bullet"]))
     elements.append(Paragraph("•&nbsp;&nbsp;Implemented role-based dashboards and emergency request workflows.", styles["bullet"]))
-    elements.append(Paragraph("•&nbsp;&nbsp;Implemented secure backend–frontend communication using Supabase Edge Functions.", styles["bullet"]))
+    elements.append(Paragraph("•&nbsp;&nbsp;Implemented secure backend-frontend communication using Supabase Edge Functions.", styles["bullet"]))
 
     elements.append(Spacer(1, 3))
 
@@ -289,14 +316,14 @@ def _build_skills_interests_section(styles: dict) -> list:
         "<b>Tools & Platforms:</b> GitHub, Supabase, Cursor, Antigravity, AWS (Basics)",
     ]
     for line in skills_lines:
-        elements.append(Paragraph(line, styles["body"]))
+        elements.append(Paragraph(_clean_text(line), styles["body"]))
         elements.append(Spacer(1, 1))
 
     elements.append(Spacer(1, 3))
     elements.extend(_add_section_header("INTERESTS", styles))
     elements.append(
         Paragraph(
-            "Artificial Intelligence, Generative AI, Full-Stack Development, Machine Learning, Cloud Architecture, AI Applications.",
+            _clean_text("Artificial Intelligence, Generative AI, Full-Stack Development, Machine Learning, Cloud Architecture, AI Applications."),
             styles["body"],
         )
     )
