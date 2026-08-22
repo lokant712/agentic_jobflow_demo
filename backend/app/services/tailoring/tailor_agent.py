@@ -49,14 +49,15 @@ Output format (STRICTLY follow this schema, no other text):
 
 
 def _build_prompt(job: CanonicalJobRecord, facts: list[dict]) -> str:
-    facts_json = json.dumps(facts, indent=2)
+    # Cap facts payload to top 30 to fit well within LLM context and rate limits
+    facts_json = json.dumps(facts[:30], indent=2)
     return (
         f"{_SYSTEM_PROMPT}\n\n"
         f"JOB DESCRIPTION:\n"
         f"Company: {job.company}\n"
         f"Role: {job.role}\n"
         f"---\n"
-        f"{job.jd_text[:3000]}\n"
+        f"{job.jd_text[:2500]}\n"
         f"---\n\n"
         f"CANDIDATE FACTS (use ONLY these):\n"
         f"FACTS_JSON: {facts_json}\n\n"
@@ -128,11 +129,15 @@ async def tailor_resume(
     if not all_facts:
         raise ValueError("Master Profile Store is empty. Ingest a resume first.")
 
-    # Serialize facts for prompt injection
-    facts_payload = [
-        {"fact_id": f.fact_id, "type": f.type, "text": f.text}
-        for f in all_facts
-    ]
+    # Serialize facts for prompt injection (deduplicating identical text entries)
+    seen_texts = set()
+    facts_payload = []
+    for f in all_facts:
+        norm_text = f.text.strip().lower()
+        if norm_text not in seen_texts:
+            seen_texts.add(norm_text)
+            facts_payload.append({"fact_id": f.fact_id, "type": f.type, "text": f.text})
+
     valid_fact_ids = {f.fact_id for f in all_facts}
 
     prompt = _build_prompt(job, facts_payload)
