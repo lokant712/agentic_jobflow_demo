@@ -1327,26 +1327,30 @@
       const container = document.getElementById('batch-job-list');
       if (!container) return;
 
-      const visibleJobs = cachedJobs.filter(j => !dismissedJobFingerprints.has(j.fingerprint));
+      // Show only pending jobs that have not been approved or rejected
+      const visibleJobs = cachedJobs.filter(j => !approvedJobFingerprints.has(j.fingerprint) && !dismissedJobFingerprints.has(j.fingerprint));
 
       if (visibleJobs.length === 0) {
-        container.innerHTML = `<div class="empty-state">No jobs in view. Use 'Scout Live Openings' to discover fresh postings.</div>`;
+        const approvedCount = approvedJobFingerprints.size;
+        container.innerHTML = `
+          <div class="empty-state">
+            ${approvedCount > 0 ? `✅ You have <strong>${approvedCount} approved job(s)</strong> ready in the <strong>Review & Apply Studio</strong> tab.` : 'No pending jobs in view. Use \'Scout Live Openings\' to discover fresh postings.'}
+          </div>
+        `;
         updateBatchButton();
         return;
       }
 
       container.innerHTML = visibleJobs.map(j => {
-        const isApproved = approvedJobFingerprints.has(j.fingerprint);
         const sourceName = j.source_channel || (j.application_link?.includes('linkedin.com') ? 'linkedin' : j.application_link?.includes('remotive.com') ? 'remotive' : j.ats_type || 'web');
         
         return `
-          <div class="batch-item ${isApproved ? 'selected' : ''}" id="batch-item-${j.fingerprint}" style="${isApproved ? 'border-color:var(--success); background:rgba(16,185,129,0.06);' : ''}">
+          <div class="batch-item" id="batch-item-${j.fingerprint}">
             <div style="flex:1;">
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
                 <div style="display:flex; align-items:center; gap:8px;">
                   <span style="font-weight:700; font-size:14px;">${j.company}</span>
                   <span class="badge badge-${sourceName.toLowerCase()}">${sourceName.toUpperCase()}</span>
-                  ${isApproved ? '<span class="badge badge-greenhouse">APPROVED ✅</span>' : ''}
                 </div>
                 <span class="badge badge-${j.ats_type}">${j.ats_type.toUpperCase()}</span>
               </div>
@@ -1356,8 +1360,8 @@
                 
                 <!-- Approve and Reject buttons -->
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="${isApproved ? 'background:var(--success); color:#fff; border-color:var(--success);' : 'border-color:rgba(16,185,129,0.4); color:var(--success);'}" onclick="toggleJobApproval('${j.fingerprint}')" title="Approve for Tailor Studio">
-                    ${isApproved ? 'Approved' : 'Approve'}
+                  <button class="btn-primary btn-success" style="font-size:11px; padding:6px 14px;" onclick="approveJob('${j.fingerprint}')" title="Approve for Tailor Studio">
+                    Approve
                   </button>
                   <button class="btn-action" style="border-color:rgba(239,68,68,0.3); color:var(--danger);" onclick="dismissJob('${j.fingerprint}')" title="Reject Job">
                     Reject
@@ -1372,16 +1376,10 @@
       updateBatchButton();
     }
 
-    function toggleJobApproval(fingerprint) {
-      if (approvedJobFingerprints.has(fingerprint)) {
-        approvedJobFingerprints.delete(fingerprint);
-        selectedJobFingerprints.delete(fingerprint);
-        showToast("Job moved to pending", "info");
-      } else {
-        approvedJobFingerprints.add(fingerprint);
-        selectedJobFingerprints.add(fingerprint);
-        showToast("Job approved! Ready in Tailor Studio.", "success");
-      }
+    function approveJob(fingerprint) {
+      approvedJobFingerprints.add(fingerprint);
+      dismissedJobFingerprints.delete(fingerprint);
+      showToast("Job approved! Added to Tailor Studio.", "success");
       renderBatchJobList();
       populateTailorSelect();
     }
@@ -1389,23 +1387,17 @@
     function dismissJob(fingerprint) {
       dismissedJobFingerprints.add(fingerprint);
       approvedJobFingerprints.delete(fingerprint);
-      selectedJobFingerprints.delete(fingerprint);
-      showToast("Job rejected", "info");
+      showToast("Job rejected and removed.", "info");
       renderBatchJobList();
       populateTailorSelect();
     }
 
     function toggleSelectAllJobs() {
-      const visibleJobs = cachedJobs.filter(j => !dismissedJobFingerprints.has(j.fingerprint));
-      if (approvedJobFingerprints.size === visibleJobs.length) {
-        approvedJobFingerprints.clear();
-        selectedJobFingerprints.clear();
-      } else {
-        visibleJobs.forEach(j => {
-          approvedJobFingerprints.add(j.fingerprint);
-          selectedJobFingerprints.add(j.fingerprint);
-        });
-      }
+      const visibleJobs = cachedJobs.filter(j => !approvedJobFingerprints.has(j.fingerprint) && !dismissedJobFingerprints.has(j.fingerprint));
+      visibleJobs.forEach(j => {
+        approvedJobFingerprints.add(j.fingerprint);
+      });
+      showToast(`Approved all ${visibleJobs.length} visible jobs!`, "success");
       renderBatchJobList();
       populateTailorSelect();
     }
@@ -1885,9 +1877,12 @@
         const data = await res.json();
         showToast(data.message || "All jobs cleared successfully!", "success");
         selectedJobFingerprints.clear();
+        approvedJobFingerprints.clear();
+        dismissedJobFingerprints.clear();
         cachedJobs = [];
         activeFingerprint = "";
         activeResumeId = "";
+        activeJob = null;
         refreshAllData();
       } catch (err) {
         showToast(err.message, "error");
