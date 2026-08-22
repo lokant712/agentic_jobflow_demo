@@ -346,6 +346,10 @@
       background: linear-gradient(135deg, var(--warning), #d97706);
       box-shadow: 0 4px 14px var(--warning-glow);
     }
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger), #b91c1c);
+      box-shadow: 0 4px 14px var(--danger-glow);
+    }
 
     /* ─── Tables ─────────────────────────────────────────────────────────── */
     .table-container {
@@ -412,30 +416,37 @@
       margin-right: 4px;
     }
 
-    /* ─── Bullet Breakdown List ──────────────────────────────────────────── */
-    .bullet-item {
-      padding: 14px;
+    /* ─── Bullet Breakdown List & Editor ─────────────────────────────────── */
+    .bullet-edit-card {
+      padding: 12px;
       border-radius: var(--radius-sm);
-      background: rgba(0, 0, 0, 0.25);
-      border-left: 4px solid var(--primary);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--success);
       margin-bottom: 12px;
-      transition: all 0.2s ease;
     }
-    .bullet-item.passed { border-left-color: var(--success); }
-    .bullet-item.dropped {
-      border-left-color: var(--danger);
-      background: rgba(239, 68, 68, 0.05);
-      opacity: 0.85;
-    }
-    .bullet-text {
-      font-size: 13px;
+    .bullet-textarea {
+      width: 100%;
+      background: rgba(15, 20, 34, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-sm);
       color: var(--text-main);
-      margin-bottom: 6px;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      padding: 8px 12px;
+      resize: vertical;
+      min-height: 54px;
+      line-height: 1.4;
+      outline: none;
+    }
+    .bullet-textarea:focus {
+      border-color: var(--primary);
     }
     .bullet-meta {
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+      margin-top: 6px;
       font-size: 11px;
       color: var(--text-muted);
     }
@@ -573,6 +584,14 @@
       padding: 16px;
       margin-top: 14px;
     }
+
+    .manual-apply-box {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-top: 14px;
+    }
   </style>
 </head>
 <body>
@@ -610,7 +629,7 @@
       </button>
       <button class="nav-btn" onclick="switchTab('tailor-studio')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-        Tailor Studio & Autofill
+        Review & Apply Studio
       </button>
       <button class="nav-btn" onclick="switchTab('profile-facts')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -680,7 +699,7 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
               Active Application Pipeline
             </div>
-            <div class="card-subtitle">Real-time status tracking from Discovery to Interview</div>
+            <div class="card-subtitle">Real-time status tracking from Discovery to Auto-Apply or Telegram</div>
           </div>
           <button class="btn-action" onclick="fetchTracker()">Reload Pipeline</button>
         </div>
@@ -762,8 +781,8 @@
       <div id="batch-results-section" style="display:none; margin-top:24px;" class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">🎯 Batch Tailoring & Decision Engine Results</div>
-            <div class="card-subtitle">Real-time Fact-ID verification and execution status per job</div>
+            <div class="card-title">🎯 Batch Tailoring & Application Action Center</div>
+            <div class="card-subtitle">Review tailored resumes, launch browser auto-fill, or send to Telegram</div>
           </div>
         </div>
         <div id="batch-results-grid" class="grid-2"></div>
@@ -861,13 +880,13 @@
       </div>
     </div>
 
-    <!-- ─── TAB 4: TAILOR & AUTOFILL STUDIO ─────────────────────────────── -->
+    <!-- ─── TAB 4: TAILOR, REVIEW & APPLY STUDIO ────────────────────────── -->
     <div id="tab-tailor-studio" class="tab-pane">
       <div class="grid-1-2">
-        <!-- Control Panel -->
+        <!-- Control Panel & Decision Routing Hub -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">⚙️ Tailor & Autofill Controls</div>
+            <div class="card-title">⚙️ Job Selection & Actions</div>
           </div>
           <div class="form-group">
             <label class="form-label">Select Target Job</label>
@@ -879,7 +898,10 @@
           <div id="selected-job-info" style="display:none; background:rgba(0,0,0,0.3); padding:12px; border-radius:var(--radius-sm); margin-bottom:16px; border:1px solid var(--border-subtle);">
             <div style="font-weight:600; font-size:14px;" id="sel-job-title">-</div>
             <div style="color:var(--text-muted); font-size:12px;" id="sel-job-company">-</div>
-            <div style="margin-top:6px;" id="sel-job-ats">-</div>
+            <div style="margin-top:6px; display:flex; justify-content:space-between; align-items:center;">
+              <span id="sel-job-ats">-</span>
+              <span id="sel-job-link-badge"></span>
+            </div>
           </div>
 
           <button id="btn-run-tailor" class="btn-primary" style="width:100%; margin-bottom:12px;" onclick="runTailorAndVerify()">
@@ -887,33 +909,61 @@
             Generate & Verify Resume
           </button>
 
-          <!-- Human-in-the-Loop Approval Center -->
-          <div id="human-approval-box" class="human-box" style="display:none;">
+          <!-- User Action Decision Center -->
+          <div id="user-actions-box" class="human-box" style="display:none;">
             <div style="font-size:12px; font-weight:700; color:var(--accent); margin-bottom:6px;">
-              🛡️ HUMAN-IN-THE-LOOP CONTROL
+              🎯 CHOOSE APPLICATION ACTION
             </div>
-            <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px; line-height:1.4;">
-              Review the tailored resume on the right. When authorized, click below to open a live browser session on your screen:
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
+              Review the tailored resume on the right. Edit any bullet if needed, then choose your action:
             </div>
-            <button id="btn-open-browser" class="btn-primary btn-success" style="width:100%; font-size:12px; padding:9px;" onclick="launchBrowserOnScreen()">
-              🚀 Launch Live Browser Pre-Fill
+
+            <!-- Option 1: Path A (Auto-Apply) -->
+            <button id="btn-action-path-a" class="btn-primary btn-success" style="width:100%; font-size:12px; padding:10px; margin-bottom:8px;" onclick="handleUserChoicePathA()">
+              🚀 Option 1: Auto-Apply (Path A Browser)
             </button>
-            <div style="display:flex; gap:8px; margin-top:8px;">
-              <button class="btn-action" style="flex:1; font-size:11px; justify-content:center;" onclick="triggerPathB()">📱 Send Telegram</button>
-              <a id="btn-direct-apply" href="#" target="_blank" class="btn-action" style="flex:1; font-size:11px; justify-content:center; text-decoration:none;">🔗 Manual Apply</a>
+
+            <!-- Option 2: Path B (Telegram) -->
+            <button id="btn-action-path-b" class="btn-primary" style="width:100%; background:linear-gradient(135deg, #0284c7, #0369a1); font-size:12px; padding:9px;" onclick="handleUserChoicePathB()">
+              📱 Option 2: Send to Telegram (Path B)
+            </button>
+
+            <!-- Manual Fallback Hub (Shows if Auto-Apply fails/unsupported) -->
+            <div id="manual-fallback-hub" class="manual-apply-box" style="display:none;">
+              <div style="font-size:12px; font-weight:700; color:var(--warning); margin-bottom:4px;" id="manual-fallback-title">
+                ⚠️ Auto-Apply Not Supported For This Platform
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px;" id="manual-fallback-msg">
+                This job uses a custom/enterprise portal. Use 1-Click Manual Apply below with your tailored PDF:
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <a id="btn-manual-external-link" href="#" target="_blank" class="btn-primary btn-warning" style="text-decoration:none; font-size:12px; padding:8px; justify-content:center;">
+                  🔗 Open Direct Application Link
+                </a>
+                <button class="btn-action" style="justify-content:center;" onclick="copyCandidateDetails()">
+                  📋 Copy Name, Email, Phone & LinkedIn
+                </button>
+                <button class="btn-action" style="justify-content:center;" onclick="handleUserChoicePathB()">
+                  📱 Also Send to Telegram Bot
+                </button>
+              </div>
             </div>
+
           </div>
         </div>
 
-        <!-- Verification Results & Breakdown -->
+        <!-- Verification Results & Resume Editor -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">🛡️ Grounding Verifier Audit Console</div>
+            <div>
+              <div class="card-title">🛡️ Tailored Resume Review & Editor</div>
+              <div class="card-subtitle">Review, edit bullets, and recompile PDF before applying</div>
+            </div>
             <div id="pdf-download-btn-container"></div>
           </div>
 
           <div id="tailor-results-placeholder" style="text-align:center; padding:50px 20px; color:var(--text-dim);">
-            Select a job and click "Generate & Verify Resume" to run the pipeline.
+            Select a job on the left and click "Generate & Verify Resume" to tailor and review your application.
           </div>
 
           <div id="tailor-results-content" style="display:none;">
@@ -925,19 +975,25 @@
                 <div style="font-size:10px; color:var(--text-dim);" id="res-grounding-detail">0 / 0 bullets passed</div>
               </div>
               <div class="stat-card" style="flex-direction:column; align-items:flex-start; padding:14px;">
-                <div class="stat-label">Decision Verdict</div>
-                <div class="stat-val" id="res-verdict" style="font-size:20px; color:var(--accent);">-</div>
-                <div style="font-size:10px; color:var(--text-dim);" id="res-verdict-reason">Hard AND-gate check</div>
+                <div class="stat-label">Platform Support</div>
+                <div class="stat-val" id="res-ats-support" style="font-size:18px; color:var(--accent);">-</div>
+                <div style="font-size:10px; color:var(--text-dim);" id="res-ats-detail">ATS Compatibility</div>
               </div>
               <div class="stat-card" style="flex-direction:column; align-items:flex-start; padding:14px;">
-                <div class="stat-label">Tailored PDF Status</div>
+                <div class="stat-label">Tailored PDF Resume</div>
                 <div class="stat-val" style="font-size:18px; color:#a78bfa;" id="res-pdf-status">Compiled</div>
-                <div style="font-size:10px; color:var(--text-dim);">Ivy-League Standard 1-Page</div>
+                <div style="font-size:10px; color:var(--text-dim);">Executive Standard 1-Page</div>
               </div>
             </div>
 
-            <div style="font-size:13px; font-weight:600; margin-bottom:12px; color:var(--text-muted);">
-              BULLET-LEVEL MECHANICAL ENTAILMENT AUDIT
+            <!-- Bullet Editor Container -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <div style="font-size:13px; font-weight:600; color:var(--text-muted);">
+                TAILORED EXPERIENCE BULLETS (EDITABLE)
+              </div>
+              <button id="btn-recompile-pdf" class="btn-action" onclick="recompileEditedResume()">
+                🔄 Save Edits & Recompile PDF
+              </button>
             </div>
             <div id="verified-bullets-container"></div>
           </div>
@@ -1045,7 +1101,20 @@
     let cachedJobs = [];
     let activeFingerprint = "";
     let activeResumeId = "";
+    let activeJob = null;
+    let currentTailorData = null;
     let selectedJobFingerprints = new Set();
+
+    const candidateProfile = {
+      name: "Lokanth Srihari",
+      first_name: "Lokanth",
+      last_name: "Srihari",
+      email: "lokanth2006@gmail.com",
+      phone: "+91 8838379971",
+      location: "Vellore, India",
+      linkedin: "https://linkedin.com/in/lokanth",
+      github: "https://github.com/lokant712"
+    };
 
     // ─── Tab Switching ────────────────────────────────────────────────────────
     function switchTab(tabId) {
@@ -1112,7 +1181,7 @@
               <td>${app.path_taken ? `<span class="badge badge-path-${app.path_taken.toLowerCase().includes('a') ? 'a' : 'b'}">${app.path_taken}</span>` : '<span style="color:var(--text-dim);">-</span>'}</td>
               <td style="font-size:12px; color:var(--text-muted);">${app.updated_at ? new Date(app.updated_at).toLocaleString() : 'Recently'}</td>
               <td>
-                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${app.job_fingerprint}')">Tailor / Autofill</button>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${app.job_fingerprint}')">Review / Apply</button>
               </td>
             </tr>
           `;
@@ -1143,7 +1212,7 @@
                 <td>
                   <div style="display:flex; gap:6px;">
                     <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="viewJdModal('${j.fingerprint}')">View JD</button>
-                    <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${j.fingerprint}')">Tailor</button>
+                    <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${j.fingerprint}')">Tailor & Apply</button>
                   </div>
                 </td>
               </tr>
@@ -1332,45 +1401,14 @@
           const res = await fetch(`${API_BASE}/api/tailor/${fp}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              profile: {
-                name: "Lokanth Srihari",
-                first_name: "Lokanth",
-                last_name: "Srihari",
-                email: "lokanth2006@gmail.com",
-                phone: "+91 8838379971",
-                location: "Vellore, India",
-                linkedin: "https://linkedin.com/in/lokanth",
-                github: "https://github.com/lokant712"
-              }
-            })
+            body: JSON.stringify({ profile: candidateProfile })
           });
           const tailorData = await res.json();
           
-          // 2. Evaluate Decision Engine
-          const execRes = await fetch(`${API_BASE}/api/execute/path-a/${fp}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              profile: {
-                name: "Lokanth Srihari",
-                first_name: "Lokanth",
-                last_name: "Srihari",
-                email: "lokanth2006@gmail.com",
-                phone: "+91 8838379971",
-                location: "Vellore, India",
-                linkedin: "https://linkedin.com/in/lokanth",
-                github: "https://github.com/lokant712"
-              },
-              force_launch: false
-            })
-          });
-          const decisionData = await execRes.json();
-
           processedCount++;
           btn.innerText = `Processing (${processedCount}/${selected.length})...`;
 
-          renderBatchResultCard(grid, job, tailorData, decisionData);
+          renderBatchResultCard(grid, job, tailorData);
         } catch (err) {
           console.error(`Error batch processing ${job.company}:`, err);
         }
@@ -1378,18 +1416,17 @@
 
       btn.disabled = false;
       btn.innerText = `⚡ Batch Tailor Selected (${selectedJobFingerprints.size})`;
-      showToast(`Batch execution complete for ${processedCount} jobs!`, "success");
+      showToast(`Batch tailoring complete for ${processedCount} jobs! Review resumes below.`, "success");
       fetchTracker();
-      fetchDecisions();
     }
 
-    function renderBatchResultCard(grid, job, tailor, decision) {
+    function renderBatchResultCard(grid, job, tailor) {
       const card = document.createElement('div');
       card.className = "batch-result-card";
       
       const gScore = (tailor.grounding_score * 100).toFixed(1);
-      const isPathA = decision.route === 'PATH_A';
       const cleanPdfPath = tailor.pdf_path ? tailor.pdf_path.replace(/\\/g, '/').split('/').pop() : '';
+      const isSupportedAts = ['greenhouse', 'lever', 'ashby'].includes(job.ats_type);
 
       card.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
@@ -1397,7 +1434,7 @@
             <div style="font-weight:700; font-size:15px;">${job.company}</div>
             <div style="color:var(--text-muted); font-size:13px;">${job.role}</div>
           </div>
-          <span class="badge badge-path-${isPathA ? 'a' : 'b'}">${decision.route}</span>
+          <span class="badge badge-${job.ats_type}">${job.ats_type.toUpperCase()}</span>
         </div>
 
         <div class="grid-3" style="gap:8px; margin-bottom:12px;">
@@ -1406,52 +1443,45 @@
             <div style="font-size:16px; font-weight:700; color:${tailor.grounding_score >= 0.95 ? 'var(--success)' : 'var(--warning)'};">${gScore}%</div>
           </div>
           <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:10px; color:var(--text-dim);">VERIFIED</div>
+            <div style="font-size:10px; color:var(--text-dim);">VERIFIED CLAIMS</div>
             <div style="font-size:16px; font-weight:700; color:var(--text-main);">${tailor.passed_bullets}/${tailor.total_bullets}</div>
           </div>
           <div style="background:rgba(0,0,0,0.3); padding:8px; border-radius:var(--radius-sm); text-align:center;">
-            <div style="font-size:10px; color:var(--text-dim);">ATS PLATFORM</div>
-            <div style="font-size:13px; font-weight:600; color:var(--accent); text-transform:uppercase;">${job.ats_type}</div>
+            <div style="font-size:10px; color:var(--text-dim);">AUTO-APPLY</div>
+            <div style="font-size:12px; font-weight:700; color:${isSupportedAts ? 'var(--success)' : 'var(--warning)'};">${isSupportedAts ? 'SUPPORTED' : 'MANUAL'}</div>
           </div>
-        </div>
-
-        <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
-          <strong>Decision rationale:</strong> ${decision.reason || decision.message || 'All thresholds cleared.'}
         </div>
 
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           ${cleanPdfPath ? `<a href="/resumes/${cleanPdfPath}" target="_blank" class="btn-action" style="font-size:11px; text-decoration:none;">📄 Download PDF</a>` : ''}
-          <button class="btn-primary btn-success" style="font-size:11px; padding:6px 12px;" onclick="triggerPathAFor('${job.fingerprint}')">🚀 Launch Browser Pre-Fill</button>
+          <button class="btn-primary btn-success" style="font-size:11px; padding:6px 12px;" onclick="quickAutoApply('${job.fingerprint}')">🚀 Auto-Apply (Path A)</button>
           <button class="btn-action" style="font-size:11px;" onclick="triggerPathBFor('${job.fingerprint}')">📱 Telegram</button>
+          <button class="btn-action" style="font-size:11px;" onclick="openTailorFor('${job.fingerprint}')">✏️ Review / Edit</button>
           ${job.application_link ? `<a href="${job.application_link}" target="_blank" class="btn-action" style="font-size:11px; text-decoration:none;">🔗 External Link</a>` : ''}
         </div>
       `;
       grid.appendChild(card);
     }
 
-    async function triggerPathAFor(fp) {
-      showToast("Launching Chromium browser on your screen with safety stop...", "info");
+    async function quickAutoApply(fp) {
+      showToast("Evaluating platform & launching browser pre-fill...", "info");
       try {
         const res = await fetch(`${API_BASE}/api/execute/path-a/${fp}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profile: {
-              name: "Lokanth Srihari",
-              first_name: "Lokanth",
-              last_name: "Srihari",
-              email: "lokanth2006@gmail.com",
-              phone: "+91 8838379971",
-              location: "Vellore, India",
-              linkedin: "https://linkedin.com/in/lokanth",
-              github: "https://github.com/lokant712"
-            },
-            force_launch: true
-          })
+          body: JSON.stringify({ profile: candidateProfile, force_launch: false })
         });
         const d = await res.json();
-        showToast(d.message || "Browser launched on your desktop! Review and click submit.", "success");
+        if (d.route === 'PATH_A') {
+          showToast(d.message || "Chromium browser opened on your screen! Please review fields and submit.", "success");
+        } else {
+          showToast(`⚠️ ${d.message}`, "warning");
+          if (d.application_link) {
+            window.open(d.application_link, '_blank');
+          }
+        }
         fetchTracker();
+        fetchDecisions();
       } catch (e) { showToast(e.message, "error"); }
     }
 
@@ -1461,20 +1491,10 @@
         const res = await fetch(`${API_BASE}/api/execute/path-b/${fp}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profile: {
-              name: "Lokanth Srihari",
-              first_name: "Lokanth",
-              last_name: "Srihari",
-              email: "lokanth2006@gmail.com",
-              phone: "+91 8838379971",
-              location: "Vellore, India",
-              linkedin: "https://linkedin.com/in/lokanth"
-            }
-          })
+          body: JSON.stringify({ profile: candidateProfile })
         });
         const d = await res.json();
-        showToast(d.sent ? "Telegram alert dispatched!" : "Telegram alert logged (check tokens in .env)", "success");
+        showToast(d.sent ? "Telegram alert dispatched with resume attached!" : "Telegram alert logged (check tokens in .env)", "success");
         fetchTracker();
       } catch (e) { showToast(e.message, "error"); }
     }
@@ -1575,7 +1595,7 @@
       }
     }
 
-    // ─── Tailor & Studio Integration ─────────────────────────────────────────
+    // ─── Tailor Studio: Review, Edit & Decision Hub ───────────────────────────
     function populateTailorSelect() {
       const select = document.getElementById('tailor-job-select');
       if (!select) return;
@@ -1593,21 +1613,28 @@
       const fp = document.getElementById('tailor-job-select').value;
       activeFingerprint = fp;
       const infoBox = document.getElementById('selected-job-info');
-      const job = cachedJobs.find(j => j.fingerprint === fp);
+      activeJob = cachedJobs.find(j => j.fingerprint === fp);
 
-      if (!job) {
+      if (!activeJob) {
         infoBox.style.display = 'none';
         return;
       }
 
       infoBox.style.display = 'block';
-      document.getElementById('sel-job-title').innerText = job.role;
-      document.getElementById('sel-job-company').innerText = job.company;
-      document.getElementById('sel-job-ats').innerHTML = `<span class="badge badge-${job.ats_type}">${job.ats_type.toUpperCase()}</span>`;
+      document.getElementById('sel-job-title').innerText = activeJob.role;
+      document.getElementById('sel-job-company').innerText = activeJob.company;
+      document.getElementById('sel-job-ats').innerHTML = `<span class="badge badge-${activeJob.ats_type}">${activeJob.ats_type.toUpperCase()}</span>`;
       
-      const directApplyBtn = document.getElementById('btn-direct-apply');
-      if (directApplyBtn) {
-        directApplyBtn.href = job.application_link || '#';
+      const linkBadge = document.getElementById('sel-job-link-badge');
+      if (activeJob.application_link) {
+        linkBadge.innerHTML = `<a href="${activeJob.application_link}" target="_blank" style="color:var(--accent); font-size:11px; text-decoration:none;">🔗 Open Job URL</a>`;
+      } else {
+        linkBadge.innerHTML = `<span style="color:var(--text-dim); font-size:11px;">Manual Link</span>`;
+      }
+
+      const manualLinkBtn = document.getElementById('btn-manual-external-link');
+      if (manualLinkBtn) {
+        manualLinkBtn.href = activeJob.application_link || '#';
       }
     }
 
@@ -1626,22 +1653,12 @@
         const res = await fetch(`${API_BASE}/api/tailor/${activeFingerprint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            profile: {
-              name: "Lokanth Srihari",
-              first_name: "Lokanth",
-              last_name: "Srihari",
-              email: "lokanth2006@gmail.com",
-              phone: "+91 8838379971",
-              location: "Vellore, India",
-              linkedin: "https://linkedin.com/in/lokanth",
-              github: "https://github.com/lokant712"
-            }
-          })
+          body: JSON.stringify({ profile: candidateProfile })
         });
         const data = await res.json();
         if (res.ok) {
           activeResumeId = data.resume_id;
+          currentTailorData = data;
           displayTailorResults(data);
           showToast(`Tailored successfully! Grounding score: ${(data.grounding_score * 100).toFixed(1)}%`, "success");
           fetchTracker();
@@ -1659,7 +1676,8 @@
     function displayTailorResults(data) {
       document.getElementById('tailor-results-placeholder').style.display = 'none';
       document.getElementById('tailor-results-content').style.display = 'block';
-      document.getElementById('human-approval-box').style.display = 'block';
+      document.getElementById('user-actions-box').style.display = 'block';
+      document.getElementById('manual-fallback-hub').style.display = 'none';
 
       const scorePct = (data.grounding_score * 100).toFixed(1);
       const scoreEl = document.getElementById('res-grounding-score');
@@ -1668,14 +1686,10 @@
 
       document.getElementById('res-grounding-detail').innerText = `${data.passed_bullets} of ${data.total_bullets} claims verified`;
 
-      const verdictEl = document.getElementById('res-verdict');
-      if (data.grounding_score >= 0.95) {
-        verdictEl.innerText = "PATH A (Eligible)";
-        verdictEl.style.color = "var(--success)";
-      } else {
-        verdictEl.innerText = "PATH B (Review)";
-        verdictEl.style.color = "var(--warning)";
-      }
+      const isSupportedAts = activeJob && ['greenhouse', 'lever', 'ashby'].includes(activeJob.ats_type);
+      const atsSupportEl = document.getElementById('res-ats-support');
+      atsSupportEl.innerText = isSupportedAts ? `${activeJob.ats_type.toUpperCase()} (Path A)` : `${(activeJob?.ats_type || 'generic').toUpperCase()} (Path B)`;
+      atsSupportEl.style.color = isSupportedAts ? 'var(--success)' : 'var(--warning)';
 
       const pdfContainer = document.getElementById('pdf-download-btn-container');
       if (data.pdf_path) {
@@ -1688,30 +1702,113 @@
         `;
       }
 
+      // Render Editable Bullets
+      renderEditableBullets(data.verified_bullets || []);
+    }
+
+    function renderEditableBullets(bullets) {
       const container = document.getElementById('verified-bullets-container');
-      if (data.verified_bullets && data.verified_bullets.length > 0) {
-        container.innerHTML = data.verified_bullets.map(b => `
-          <div class="bullet-item passed">
-            <div class="bullet-text">${b.text}</div>
-            <div class="bullet-meta">
-              <span>Grounding: ✅ PASS</span>
-              <span>Cited: ${b.fact_ids.map(id => `<span class="fact-tag">${id}</span>`).join('')}</span>
-            </div>
-          </div>
-        `).join('');
-      } else {
+      if (!bullets || bullets.length === 0) {
         container.innerHTML = `<div class="empty-state">No passed bullets for this role.</div>`;
+        return;
+      }
+
+      container.innerHTML = bullets.map((b, idx) => `
+        <div class="bullet-edit-card" id="bullet-card-${idx}">
+          <textarea class="bullet-textarea" id="bullet-edit-${idx}">${b.text}</textarea>
+          <div class="bullet-meta">
+            <span>Grounding: ✅ PASS</span>
+            <span>Cited: ${b.fact_ids.map(id => `<span class="fact-tag">${id}</span>`).join('')}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function recompileEditedResume() {
+      if (!activeResumeId) return;
+
+      const textareas = document.querySelectorAll('.bullet-textarea');
+      const updatedBullets = Array.from(textareas).map(ta => ta.value.trim()).filter(Boolean);
+
+      const btn = document.getElementById('btn-recompile-pdf');
+      btn.disabled = true;
+      btn.innerText = "Recompiling PDF...";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/resumes/${activeResumeId}/recompile`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bullets: updatedBullets,
+            profile: candidateProfile
+          })
+        });
+        const d = await res.json();
+        if (res.ok) {
+          showToast("Resume updated and PDF recompiled successfully!", "success");
+          const cleanPath = d.pdf_path.replace(/\\/g, '/');
+          const filename = cleanPath.split('/').pop();
+          document.getElementById('pdf-download-btn-container').innerHTML = `
+            <a href="/resumes/${filename}" target="_blank" class="btn-action" style="background:var(--primary); color:#fff; text-decoration:none;">
+              📄 Download Executive PDF
+            </a>
+          `;
+        } else {
+          showToast(d.detail || "Recompile failed", "error");
+        }
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "🔄 Save Edits & Recompile PDF";
       }
     }
 
-    async function launchBrowserOnScreen() {
+    async function handleUserChoicePathA() {
       if (!activeFingerprint) return;
-      triggerPathAFor(activeFingerprint);
+
+      const btn = document.getElementById('btn-action-path-a');
+      btn.disabled = true;
+      btn.innerText = "Checking platform & pre-filling...";
+      showToast("Launching Path A (Assisted Auto-Fill)...", "info");
+
+      try {
+        const res = await fetch(`${API_BASE}/api/execute/path-a/${activeFingerprint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile: candidateProfile, force_launch: false })
+        });
+        const d = await res.json();
+
+        if (d.route === 'PATH_A') {
+          showToast("🟢 Live Chromium browser opened on your screen! Form pre-filled. Please inspect and click Submit.", "success");
+        } else {
+          // Fallback to Manual Apply Hub
+          showToast("⚠️ Auto-Apply is not supported on this platform. Switched to Manual Apply.", "warning");
+          const fallbackHub = document.getElementById('manual-fallback-hub');
+          fallbackHub.style.display = 'block';
+          document.getElementById('manual-fallback-msg').innerText = d.message || "Platform requires manual submission. Click below to apply:";
+        }
+        fetchTracker();
+        fetchDecisions();
+      } catch (e) {
+        showToast(e.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "🚀 Option 1: Auto-Apply (Path A Browser)";
+      }
     }
 
-    async function triggerPathB() {
+    async function handleUserChoicePathB() {
       if (!activeFingerprint) return;
       triggerPathBFor(activeFingerprint);
+    }
+
+    function copyCandidateDetails() {
+      const text = `Name: Lokanth Srihari\nEmail: lokanth2006@gmail.com\nPhone: +91 8838379971\nLocation: Vellore, India\nLinkedIn: https://linkedin.com/in/lokanth\nGitHub: https://github.com/lokant712`;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Candidate credentials copied to clipboard!", "success");
+      });
     }
 
     // ─── Modal Helpers ────────────────────────────────────────────────────────

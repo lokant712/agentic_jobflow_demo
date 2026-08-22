@@ -162,6 +162,60 @@ async def download_resume_pdf(resume_id: str, db: AsyncSession = Depends(get_db)
     return FileResponse(resume.pdf_path, media_type="application/pdf", filename=f"resume_{resume_id}.pdf")
 
 
+class RecompileResumeRequest(BaseModel):
+    bullets: list[str]
+    profile: ProfileMetadata | None = None
+
+
+@router.post("/resumes/{resume_id}/recompile", summary="Recompile tailored resume PDF with edited bullets")
+async def recompile_resume(
+    resume_id: str,
+    req: RecompileResumeRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(TailoredResume).where(TailoredResume.resume_id == resume_id)
+    )
+    resume = result.scalar_one_or_none()
+    if not resume:
+        raise HTTPException(status_code=404, detail="Resume not found")
+
+    job = await get_job(db, resume.job_fingerprint)
+    company = job.company if job else "Company"
+    role = job.role if job else "Role"
+
+    # Build updated bullet dicts preserving structure
+    updated_bullets = [{"text": b, "fact_ids": []} for b in req.bullets if b.strip()]
+    resume.set_bullets(updated_bullets)
+
+    profile_dict = req.profile.model_dump() if req.profile else {
+        "name": "Lokanth Srihari",
+        "first_name": "Lokanth",
+        "last_name": "Srihari",
+        "email": "lokanth2006@gmail.com",
+        "phone": "+91 8838379971",
+        "location": "Vellore, India",
+        "linkedin": "https://linkedin.com/in/lokanth",
+        "github": "https://github.com/lokant712",
+    }
+
+    pdf_path = generate_resume_pdf(
+        resume=resume,
+        profile=profile_dict,
+        company=company,
+        role=role,
+    )
+    resume.pdf_path = pdf_path
+    await db.commit()
+    await db.refresh(resume)
+
+    return {
+        "resume_id": resume.resume_id,
+        "pdf_path": resume.pdf_path,
+        "bullets": resume.get_bullets(),
+    }
+
+
 @router.post("/execute/path-a/{fingerprint}", summary="Launch Path A Playwright auto-fill")
 async def execute_path_a(
     fingerprint: str,
@@ -174,6 +228,9 @@ async def execute_path_a(
 
     if not job.application_link:
         raise HTTPException(status_code=422, detail="Job has no application link")
+
+    # Check if ATS platform is a supported standard
+    is_supported_ats = job.ats_type in ("greenhouse", "lever", "ashby") or "greenhouse.io" in job.application_link or "lever.co" in job.application_link or "ashbyhq.com" in job.application_link
 
     # Get latest tailored resume
     result = await db.execute(
@@ -201,13 +258,20 @@ async def execute_path_a(
         execution_score=execution_signals.score,
     )
 
-    if decision.route == "PATH_B" and not req.force_launch:
-        log.info(f"Pre-fill gate failed → routing to PATH_B: {decision.reason}")
+    if (not is_supported_ats or decision.route == "PATH_B") and not req.force_launch:
+        reason_msg = (
+            "Auto-Apply is not supported for custom/enterprise portals (e.g. Workday, Taleo, LinkedIn easy apply, or multi-step custom forms). "
+            "Please use 1-Click Manual Apply with your tailored PDF or Send to Telegram."
+            if not is_supported_ats
+            else f"Safety gate routed to Manual Review (Path B): {decision.reason}"
+        )
         await record_decision(db, job, decision)
         return {
             "route": "PATH_B",
+            "supported": is_supported_ats,
             "reason": decision.reason,
-            "message": f"Routed to Manual Review (Path B): {decision.reason}",
+            "message": reason_msg,
+            "application_link": job.application_link,
             "scores": {
                 "grounding": resume.grounding_score,
                 "completeness": completeness_score,
@@ -215,7 +279,7 @@ async def execute_path_a(
             },
         }
 
-    # If force_launch or cleared AND gate
+    # If force_launch or cleared AND gate on supported ATS
     if req.force_launch:
         decision.route = "PATH_A"
 
@@ -225,7 +289,7 @@ async def execute_path_a(
     asyncio.create_task(
         run_path_a(
             application_url=job.application_link,
-            ats_type=job.ats_type if job.ats_type in ("greenhouse", "lever", "ashby") else "greenhouse",
+            ats_type=job.ats_type if is_supported_ats else "greenhouse",
             profile=profile_dict,
             resume=resume,
         )
@@ -233,7 +297,8 @@ async def execute_path_a(
 
     return {
         "route": "PATH_A",
-        "message": "Visible browser launched on your screen! Please review the pre-filled fields and click Submit yourself.",
+        "supported": True,
+        "message": "Visible Chromium browser launched on your screen! Form fields pre-filled. Please inspect and click Submit yourself.",
         "scores": {
             "grounding": resume.grounding_score,
             "completeness": completeness_score,
