@@ -1354,13 +1354,13 @@
               <div style="font-size:11px; color:var(--text-dim); display:flex; justify-content:space-between; align-items:center;">
                 <span>🔗 ${j.application_link ? `<a href="${j.application_link}" target="_blank" style="color:var(--accent); text-decoration:none;">View Job URL</a>` : 'Direct Posting'}</span>
                 
-                <!-- Tick (Approve) and Cross (Dismiss) buttons -->
+                <!-- Approve and Reject buttons -->
                 <div style="display:flex; gap:6px;">
-                  <button class="btn-action" style="${isApproved ? 'background:var(--success); color:#fff;' : 'border-color:rgba(16,185,129,0.4); color:var(--success);'}" onclick="toggleJobApproval('${j.fingerprint}')" title="Approve for Tailor Studio">
-                    ${isApproved ? '✅ Approved' : '✅ Approve (Tick)'}
+                  <button class="btn-action" style="${isApproved ? 'background:var(--success); color:#fff; border-color:var(--success);' : 'border-color:rgba(16,185,129,0.4); color:var(--success);'}" onclick="toggleJobApproval('${j.fingerprint}')" title="Approve for Tailor Studio">
+                    ${isApproved ? 'Approved' : 'Approve'}
                   </button>
-                  <button class="btn-action" style="border-color:rgba(239,68,68,0.3); color:var(--danger);" onclick="dismissJob('${j.fingerprint}')" title="Dismiss Job">
-                    ❌ Dismiss (Cross)
+                  <button class="btn-action" style="border-color:rgba(239,68,68,0.3); color:var(--danger);" onclick="dismissJob('${j.fingerprint}')" title="Reject Job">
+                    Reject
                   </button>
                 </div>
               </div>
@@ -1376,11 +1376,11 @@
       if (approvedJobFingerprints.has(fingerprint)) {
         approvedJobFingerprints.delete(fingerprint);
         selectedJobFingerprints.delete(fingerprint);
-        showToast("Job removed from approved list", "info");
+        showToast("Job moved to pending", "info");
       } else {
         approvedJobFingerprints.add(fingerprint);
         selectedJobFingerprints.add(fingerprint);
-        showToast("Job approved! Added to Tailor Studio.", "success");
+        showToast("Job approved! Ready in Tailor Studio.", "success");
       }
       renderBatchJobList();
       populateTailorSelect();
@@ -1390,7 +1390,7 @@
       dismissedJobFingerprints.add(fingerprint);
       approvedJobFingerprints.delete(fingerprint);
       selectedJobFingerprints.delete(fingerprint);
-      showToast("Job dismissed", "info");
+      showToast("Job rejected", "info");
       renderBatchJobList();
       populateTailorSelect();
     }
