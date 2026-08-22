@@ -267,9 +267,15 @@ async def _regenerate_bullet(
 
     all_facts = await list_facts(db)
     valid_fact_ids = {f.fact_id for f in all_facts}
+
+    # Pass only the cited facts for this specific bullet (compact prompt, <200 tokens)
+    cited_ids = set(failed_bullet.get("fact_ids", []))
     facts_payload = [
         {"fact_id": f.fact_id, "type": f.type, "text": f.text}
-        for f in all_facts
+        for f in all_facts if f.fact_id in cited_ids
+    ] or [
+        {"fact_id": f.fact_id, "type": f.type, "text": f.text}
+        for f in all_facts[:10]
     ]
 
     # Narrow regeneration prompt for the specific failing bullet

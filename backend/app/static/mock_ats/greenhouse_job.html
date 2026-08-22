@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greenhouse Careers — Senior AI Engineer Application</title>
+  <style>
+    :root {
+      --gh-green: #008543;
+      --gh-dark: #222;
+      --gh-border: #d2d2d2;
+      --gh-bg: #f8f9fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--gh-bg);
+      color: var(--gh-dark);
+      line-height: 1.5;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 36px 44px;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      border: 1px solid var(--gh-border);
+    }
+    .header {
+      border-bottom: 2px solid #eee;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+    .company-name { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #666; font-weight: 600; }
+    .job-title { font-size: 26px; font-weight: 700; color: #111; margin-top: 4px; }
+    .location { font-size: 13px; color: #777; margin-top: 2px; }
+
+    .form-section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      color: #222;
+    }
+    .field-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    .required-star { color: #d9381e; }
+    input[type="text"], input[type="email"], input[type="tel"], input[type="url"], textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid var(--gh-border);
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--gh-green);
+      box-shadow: 0 0 0 2px rgba(0, 133, 67, 0.15);
+    }
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .file-dropzone {
+      border: 2px dashed var(--gh-border);
+      padding: 20px;
+      text-align: center;
+      border-radius: 6px;
+      background: #fafafa;
+      cursor: pointer;
+    }
+    .file-dropzone:hover {
+      border-color: var(--gh-green);
+    }
+    .btn-submit {
+      background: var(--gh-green);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover {
+      background: #006b36;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="company-name">Anthropic / Scale AI</div>
+    <div class="job-title">Senior AI & Backend Engineer (RAG Systems)</div>
+    <div class="location">Remote • Full-time</div>
+  </div>
+
+  <form id="application_form" method="POST" action="/submit-mock">
+    <div class="form-section-title">Submit your Application</div>
+
+    <div class="row-2">
+      <div class="field-group">
+        <label for="first_name">First Name <span class="required-star">*</span></label>
+        <input type="text" id="first_name" name="job_application[first_name]" required />
+      </div>
+      <div class="field-group">
+        <label for="last_name">Last Name <span class="required-star">*</span></label>
+        <input type="text" id="last_name" name="job_application[last_name]" required />
+      </div>
+    </div>
+
+    <div class="row-2">
+      <div class="field-group">
+        <label for="email">Email <span class="required-star">*</span></label>
+        <input type="email" id="email" name="job_application[email]" required />
+      </div>
+      <div class="field-group">
+        <label for="phone">Phone <span class="required-star">*</span></label>
+        <input type="tel" id="phone" name="job_application[phone]" required />
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="location">Location <span class="required-star">*</span></label>
+      <input type="text" id="location" name="job_application[location]" placeholder="e.g. San Francisco, CA or Remote" required />
+    </div>
+
+    <div class="field-group">
+      <label for="resume">Resume / CV (PDF) <span class="required-star">*</span></label>
+      <input type="file" id="resume" name="job_application[resume]" accept=".pdf,.doc,.docx" required />
+    </div>
+
+    <div class="field-group">
+      <label for="linkedin">LinkedIn Profile</label>
+      <input type="url" id="linkedin" name="job_application[linkedin]" placeholder="https://linkedin.com/in/..." />
+    </div>
+
+    <div class="field-group">
+      <label for="cover_letter">Cover Letter</label>
+      <textarea id="cover_letter" name="job_application[cover_letter]" rows="4" placeholder="Optional notes to hiring team..."></textarea>
+    </div>
+
+    <button type="submit" id="submit_app" class="btn-submit">
+      Submit Application
+    </button>
+  </form>
+</div>
+
+</body>
+</html>
