@@ -1320,29 +1320,49 @@
       }
     }
 
+    let approvedJobFingerprints = new Set();
+    let dismissedJobFingerprints = new Set();
+
     function renderBatchJobList() {
       const container = document.getElementById('batch-job-list');
       if (!container) return;
 
-      if (cachedJobs.length === 0) {
-        container.innerHTML = `<div class="empty-state">No jobs available yet. Click 'Scout Live Openings' to pull active listings.</div>`;
+      const visibleJobs = cachedJobs.filter(j => !dismissedJobFingerprints.has(j.fingerprint));
+
+      if (visibleJobs.length === 0) {
+        container.innerHTML = `<div class="empty-state">No jobs in view. Use 'Scout Live Openings' to discover fresh postings.</div>`;
+        updateBatchButton();
         return;
       }
 
-      container.innerHTML = cachedJobs.map(j => {
-        const isChecked = selectedJobFingerprints.has(j.fingerprint);
+      container.innerHTML = visibleJobs.map(j => {
+        const isApproved = approvedJobFingerprints.has(j.fingerprint);
+        const sourceName = j.source_channel || (j.application_link?.includes('linkedin.com') ? 'linkedin' : j.application_link?.includes('remotive.com') ? 'remotive' : j.ats_type || 'web');
+        
         return `
-          <div class="batch-item ${isChecked ? 'selected' : ''}" id="batch-item-${j.fingerprint}">
-            <input type="checkbox" class="batch-checkbox" value="${j.fingerprint}" ${isChecked ? 'checked' : ''} onchange="toggleJobSelection('${j.fingerprint}')" />
+          <div class="batch-item ${isApproved ? 'selected' : ''}" id="batch-item-${j.fingerprint}" style="${isApproved ? 'border-color:var(--success); background:rgba(16,185,129,0.06);' : ''}">
             <div style="flex:1;">
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-                <span style="font-weight:600; font-size:14px;">${j.company}</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-weight:700; font-size:14px;">${j.company}</span>
+                  <span class="badge badge-${sourceName.toLowerCase()}">${sourceName.toUpperCase()}</span>
+                  ${isApproved ? '<span class="badge badge-greenhouse">APPROVED ✅</span>' : ''}
+                </div>
                 <span class="badge badge-${j.ats_type}">${j.ats_type.toUpperCase()}</span>
               </div>
-              <div style="color:var(--text-muted); font-size:13px; margin-bottom:6px;">${j.role}</div>
-              <div style="font-size:11px; color:var(--text-dim); display:flex; gap:12px;">
-                <span>🔗 ${j.application_link ? `<a href="${j.application_link}" target="_blank" style="color:var(--accent); text-decoration:none;">Open Posting</a>` : 'Manual Posting'}</span>
-                <span>SHA-256: <code>${j.fingerprint.slice(0, 10)}...</code></span>
+              <div style="color:var(--text-muted); font-size:13px; margin-bottom:8px;">${j.role}</div>
+              <div style="font-size:11px; color:var(--text-dim); display:flex; justify-content:space-between; align-items:center;">
+                <span>🔗 ${j.application_link ? `<a href="${j.application_link}" target="_blank" style="color:var(--accent); text-decoration:none;">View Job URL</a>` : 'Direct Posting'}</span>
+                
+                <!-- Tick (Approve) and Cross (Dismiss) buttons -->
+                <div style="display:flex; gap:6px;">
+                  <button class="btn-action" style="${isApproved ? 'background:var(--success); color:#fff;' : 'border-color:rgba(16,185,129,0.4); color:var(--success);'}" onclick="toggleJobApproval('${j.fingerprint}')" title="Approve for Tailor Studio">
+                    ${isApproved ? '✅ Approved' : '✅ Approve (Tick)'}
+                  </button>
+                  <button class="btn-action" style="border-color:rgba(239,68,68,0.3); color:var(--danger);" onclick="dismissJob('${j.fingerprint}')" title="Dismiss Job">
+                    ❌ Dismiss (Cross)
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1352,26 +1372,46 @@
       updateBatchButton();
     }
 
-    function toggleJobSelection(fingerprint) {
-      if (selectedJobFingerprints.has(fingerprint)) {
+    function toggleJobApproval(fingerprint) {
+      if (approvedJobFingerprints.has(fingerprint)) {
+        approvedJobFingerprints.delete(fingerprint);
         selectedJobFingerprints.delete(fingerprint);
+        showToast("Job removed from approved list", "info");
       } else {
+        approvedJobFingerprints.add(fingerprint);
         selectedJobFingerprints.add(fingerprint);
+        showToast("Job approved! Added to Tailor Studio.", "success");
       }
       renderBatchJobList();
+      populateTailorSelect();
+    }
+
+    function dismissJob(fingerprint) {
+      dismissedJobFingerprints.add(fingerprint);
+      approvedJobFingerprints.delete(fingerprint);
+      selectedJobFingerprints.delete(fingerprint);
+      showToast("Job dismissed", "info");
+      renderBatchJobList();
+      populateTailorSelect();
     }
 
     function toggleSelectAllJobs() {
-      if (selectedJobFingerprints.size === cachedJobs.length) {
+      const visibleJobs = cachedJobs.filter(j => !dismissedJobFingerprints.has(j.fingerprint));
+      if (approvedJobFingerprints.size === visibleJobs.length) {
+        approvedJobFingerprints.clear();
         selectedJobFingerprints.clear();
       } else {
-        cachedJobs.forEach(j => selectedJobFingerprints.add(j.fingerprint));
+        visibleJobs.forEach(j => {
+          approvedJobFingerprints.add(j.fingerprint);
+          selectedJobFingerprints.add(j.fingerprint);
+        });
       }
       renderBatchJobList();
+      populateTailorSelect();
     }
 
     function updateBatchButton() {
-      const count = selectedJobFingerprints.size;
+      const count = approvedJobFingerprints.size;
       const countEl = document.getElementById('batch-selected-count');
       const btn = document.getElementById('btn-batch-tailor');
       if (countEl) countEl.innerText = count;
@@ -1379,7 +1419,7 @@
     }
 
     async function runBatchTailoring() {
-      const selected = Array.from(selectedJobFingerprints);
+      const selected = Array.from(approvedJobFingerprints);
       if (selected.length === 0) return;
 
       const btn = document.getElementById('btn-batch-tailor');
@@ -1602,11 +1642,20 @@
     function populateTailorSelect() {
       const select = document.getElementById('tailor-job-select');
       if (!select) return;
-      select.innerHTML = '<option value="">-- Choose a job --</option>' + 
-        cachedJobs.map(j => `<option value="${j.fingerprint}">${j.company} — ${j.role} (${j.ats_type})</option>`).join('');
+      
+      const approvedJobs = cachedJobs.filter(j => approvedJobFingerprints.has(j.fingerprint));
+      
+      if (approvedJobs.length === 0) {
+        select.innerHTML = '<option value="">-- No jobs approved yet (Go to Scout tab & click ✅) --</option>';
+      } else {
+        select.innerHTML = '<option value="">-- Choose an approved job (' + approvedJobs.length + ' available) --</option>' + 
+          approvedJobs.map(j => `<option value="${j.fingerprint}">${j.company} — ${j.role} (${j.ats_type})</option>`).join('');
+      }
     }
 
     function openTailorFor(fingerprint) {
+      approvedJobFingerprints.add(fingerprint);
+      populateTailorSelect();
       switchTab('tailor-studio');
       document.getElementById('tailor-job-select').value = fingerprint;
       loadJobForTailoring();
