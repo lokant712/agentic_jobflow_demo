@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Agentic-JobFlow — Autonomous Job Ingestion & Grounding Platform</title>
-  <meta name="description" content="TRL-4 Validated Fact-ID Grounded Job Application Workflow System with Zero Fabrication and Human-in-the-Loop Safeguards." />
+  <meta name="description" content="TRL-4 / TRL-5 Validated Fact-ID Grounded Job Application Workflow System with Zero Fabrication and Human-in-the-Loop Safeguards." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -394,6 +394,7 @@
     .badge-greenhouse { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
     .badge-lever { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
     .badge-ashby { background: rgba(167, 139, 250, 0.15); color: #c084fc; border: 1px solid rgba(167, 139, 250, 0.3); }
+    .badge-linkedin { background: rgba(10, 102, 194, 0.2); color: #60a5fa; border: 1px solid rgba(10, 102, 194, 0.4); }
     .badge-other { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
     
     .badge-path-a { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
@@ -564,6 +565,14 @@
       max-height: 350px;
       overflow-y: auto;
     }
+
+    .human-box {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-top: 14px;
+    }
   </style>
 </head>
 <body>
@@ -593,7 +602,7 @@
       </button>
       <button class="nav-btn" onclick="switchTab('scout-batch')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        Scout & Batch Apply
+        LinkedIn & Web Scout
       </button>
       <button class="nav-btn" onclick="switchTab('ingest-jobs')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
@@ -601,7 +610,7 @@
       </button>
       <button class="nav-btn" onclick="switchTab('tailor-studio')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-        Tailor Studio
+        Tailor Studio & Autofill
       </button>
       <button class="nav-btn" onclick="switchTab('profile-facts')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -681,9 +690,9 @@
             <thead>
               <tr>
                 <th>Job / Company</th>
-                <th>ATS Engine</th>
+                <th>Source / Platform</th>
                 <th>Pipeline Status</th>
-                <th>Path Decision</th>
+                <th>Decision Verdict</th>
                 <th>Last Updated</th>
                 <th>Actions</th>
               </tr>
@@ -696,15 +705,15 @@
       </div>
     </div>
 
-    <!-- ─── TAB 2: SCOUT & BATCH APPLY (NEW) ────────────────────────────── -->
+    <!-- ─── TAB 2: LINKEDIN & SCOUT BATCH APPLY ────────────────────────── -->
     <div id="tab-scout-batch" class="tab-pane">
       <div class="grid-1-2">
         <!-- Search Criteria Form -->
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">🔍 Scout Active Openings</div>
-              <div class="card-subtitle">Search live jobs by role, location, pay, and skills</div>
+              <div class="card-title">🔍 Scout Live Jobs</div>
+              <div class="card-subtitle">Searches real public openings on LinkedIn, Remotive & ATS boards</div>
             </div>
           </div>
 
@@ -715,18 +724,14 @@
             </div>
             <div class="form-group">
               <label class="form-label">Location</label>
-              <input type="text" id="scout-location" class="input-text" placeholder="e.g. Remote or United States" value="Remote" />
+              <input type="text" id="scout-location" class="input-text" placeholder="e.g. Remote, India, or United States" value="Remote" />
             </div>
             <div class="form-group">
               <label class="form-label">Key Skills / Keywords (comma separated)</label>
               <input type="text" id="scout-keywords" class="input-text" placeholder="e.g. Python, RAG, PyTorch, FAISS" value="Python, RAG" />
             </div>
-            <div class="form-group">
-              <label class="form-label">Expected Salary / Min Pay (Optional)</label>
-              <input type="text" id="scout-salary" class="input-text" placeholder="e.g. $120k+ / ₹25 LPA" />
-            </div>
             <button type="submit" id="btn-scout-search" class="btn-primary" style="width:100%;">
-              🌐 Search & Ingest Live Jobs
+              🌐 Scout Live Openings
             </button>
           </form>
         </div>
@@ -736,7 +741,7 @@
           <div class="card-header">
             <div>
               <div class="card-title">⚡ Curated Job Selection</div>
-              <div class="card-subtitle">Check the jobs you wish to auto-tailor and apply for</div>
+              <div class="card-subtitle">Select jobs to tailor Fact-ID resumes and run Decision Engine</div>
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn-action" onclick="toggleSelectAllJobs()">Select All</button>
@@ -773,7 +778,7 @@
           <div class="card-header">
             <div>
               <div class="card-title">🔗 1-Click Job URL Scraper</div>
-              <div class="card-subtitle">Paste any Greenhouse, Lever, Ashby, or career page URL</div>
+              <div class="card-subtitle">Paste any Greenhouse, Lever, Ashby, LinkedIn, or career page URL</div>
             </div>
           </div>
           <form onsubmit="handleScrapeUrl(event)">
@@ -842,8 +847,8 @@
               <tr>
                 <th>Company</th>
                 <th>Role</th>
-                <th>ATS Platform</th>
-                <th>Fingerprint (SHA-256)</th>
+                <th>Platform</th>
+                <th>Fingerprint</th>
                 <th>First Seen</th>
                 <th>Actions</th>
               </tr>
@@ -856,13 +861,13 @@
       </div>
     </div>
 
-    <!-- ─── TAB 4: TAILOR & VERIFY STUDIO ───────────────────────────────── -->
+    <!-- ─── TAB 4: TAILOR & AUTOFILL STUDIO ─────────────────────────────── -->
     <div id="tab-tailor-studio" class="tab-pane">
       <div class="grid-1-2">
         <!-- Control Panel -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">⚙️ Tailor Controls</div>
+            <div class="card-title">⚙️ Tailor & Autofill Controls</div>
           </div>
           <div class="form-group">
             <label class="form-label">Select Target Job</label>
@@ -882,16 +887,20 @@
             Generate & Verify Resume
           </button>
 
-          <!-- Decision Engine Routing Actions -->
-          <div style="border-top:1px solid var(--border-subtle); padding-top:16px; margin-top:16px;">
-            <div style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:10px;">DECISION ACTIONS</div>
-            <div class="grid-2" style="gap:8px;">
-              <button id="btn-path-a" class="btn-primary btn-success" style="font-size:11px; padding:8px;" onclick="triggerPathA()" disabled>
-                🚀 Path A (Autofill)
-              </button>
-              <button id="btn-path-b" class="btn-primary btn-warning" style="font-size:11px; padding:8px;" onclick="triggerPathB()" disabled>
-                📱 Path B (Telegram)
-              </button>
+          <!-- Human-in-the-Loop Approval Center -->
+          <div id="human-approval-box" class="human-box" style="display:none;">
+            <div style="font-size:12px; font-weight:700; color:var(--accent); margin-bottom:6px;">
+              🛡️ HUMAN-IN-THE-LOOP CONTROL
+            </div>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:10px; line-height:1.4;">
+              Review the tailored resume on the right. When authorized, click below to open a live browser session on your screen:
+            </div>
+            <button id="btn-open-browser" class="btn-primary btn-success" style="width:100%; font-size:12px; padding:9px;" onclick="launchBrowserOnScreen()">
+              🚀 Launch Live Browser Pre-Fill
+            </button>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <button class="btn-action" style="flex:1; font-size:11px; justify-content:center;" onclick="triggerPathB()">📱 Send Telegram</button>
+              <a id="btn-direct-apply" href="#" target="_blank" class="btn-action" style="flex:1; font-size:11px; justify-content:center; text-decoration:none;">🔗 Manual Apply</a>
             </div>
           </div>
         </div>
@@ -923,7 +932,7 @@
               <div class="stat-card" style="flex-direction:column; align-items:flex-start; padding:14px;">
                 <div class="stat-label">Tailored PDF Status</div>
                 <div class="stat-val" style="font-size:18px; color:#a78bfa;" id="res-pdf-status">Compiled</div>
-                <div style="font-size:10px; color:var(--text-dim);">ATS standard single-page</div>
+                <div style="font-size:10px; color:var(--text-dim);">Ivy-League Standard 1-Page</div>
               </div>
             </div>
 
@@ -998,7 +1007,7 @@
               <tr>
                 <th>Timestamp</th>
                 <th>Job Fingerprint</th>
-                <th>Grounding Score (≥0.95)</th>
+                <th>Grounding (≥0.95)</th>
                 <th>Completeness (≥0.85)</th>
                 <th>Execution (≥0.90)</th>
                 <th>Route</th>
@@ -1073,7 +1082,7 @@
         toast.style.transform = 'translateY(10px)';
         toast.style.transition = 'all 0.3s ease';
         setTimeout(() => toast.remove(), 300);
-      }, 4000);
+      }, 4500);
     }
 
     // ─── API Data Fetching ────────────────────────────────────────────────────
@@ -1086,7 +1095,7 @@
         document.getElementById('stat-job-count').innerText = data.count || 0;
         
         if (!data.applications || data.applications.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No active applications in pipeline. Ingest a job to start.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No active applications in pipeline. Scout a job to start.</td></tr>`;
           return;
         }
 
@@ -1103,7 +1112,7 @@
               <td>${app.path_taken ? `<span class="badge badge-path-${app.path_taken.toLowerCase().includes('a') ? 'a' : 'b'}">${app.path_taken}</span>` : '<span style="color:var(--text-dim);">-</span>'}</td>
               <td style="font-size:12px; color:var(--text-muted);">${app.updated_at ? new Date(app.updated_at).toLocaleString() : 'Recently'}</td>
               <td>
-                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${app.job_fingerprint}')">Tailor / Verify</button>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px;" onclick="openTailorFor('${app.job_fingerprint}')">Tailor / Autofill</button>
               </td>
             </tr>
           `;
@@ -1122,7 +1131,7 @@
         
         if (tbody) {
           if (cachedJobs.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No canonical jobs yet. Scrape or add a job above.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No canonical jobs yet. Scrape or scout above.</td></tr>`;
           } else {
             tbody.innerHTML = cachedJobs.map(j => `
               <tr>
@@ -1214,18 +1223,18 @@
       const keywords = kwStr ? kwStr.split(',').map(k => k.trim()).filter(Boolean) : [];
 
       btn.disabled = true;
-      btn.innerText = "Searching web & ATS engines...";
-      showToast(`Scouting live job postings for ${title}...`, "info");
+      btn.innerText = "Scouting LinkedIn & live feeds...";
+      showToast(`Scouting live postings for ${title} on LinkedIn & tech boards...`, "info");
 
       try {
         const res = await fetch(`${API_BASE}/api/jobs/scout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, location, keywords, limit: 10 })
+          body: JSON.stringify({ title, location, keywords, limit: 12 })
         });
         const data = await res.json();
         if (res.ok) {
-          showToast(`Discovered ${data.searched || 0} active job postings!`, "success");
+          showToast(`Discovered ${data.searched || 0} active job postings from LinkedIn & web!`, "success");
           await fetchJobs();
           await fetchTracker();
         } else {
@@ -1235,7 +1244,7 @@
         showToast(err.message, "error");
       } finally {
         btn.disabled = false;
-        btn.innerText = "🌐 Search & Ingest Live Jobs";
+        btn.innerText = "🌐 Scout Live Openings";
       }
     }
 
@@ -1244,7 +1253,7 @@
       if (!container) return;
 
       if (cachedJobs.length === 0) {
-        container.innerHTML = `<div class="empty-state">No jobs available yet. Run a Scout Search or Scrape a URL to populate.</div>`;
+        container.innerHTML = `<div class="empty-state">No jobs available yet. Click 'Scout Live Openings' to pull active listings.</div>`;
         return;
       }
 
@@ -1260,7 +1269,7 @@
               </div>
               <div style="color:var(--text-muted); font-size:13px; margin-bottom:6px;">${j.role}</div>
               <div style="font-size:11px; color:var(--text-dim); display:flex; gap:12px;">
-                <span>🔗 ${j.application_link ? `<a href="${j.application_link}" target="_blank" style="color:var(--accent); text-decoration:none;">View Posting</a>` : 'Manual Posting'}</span>
+                <span>🔗 ${j.application_link ? `<a href="${j.application_link}" target="_blank" style="color:var(--accent); text-decoration:none;">Open Posting</a>` : 'Manual Posting'}</span>
                 <span>SHA-256: <code>${j.fingerprint.slice(0, 10)}...</code></span>
               </div>
             </div>
@@ -1303,7 +1312,7 @@
 
       const btn = document.getElementById('btn-batch-tailor');
       btn.disabled = true;
-      btn.innerText = `Processing batch (0/${selected.length})...`;
+      btn.innerText = `Processing (0/${selected.length})...`;
 
       const resultsSection = document.getElementById('batch-results-section');
       const grid = document.getElementById('batch-results-grid');
@@ -1326,10 +1335,13 @@
             body: JSON.stringify({
               profile: {
                 name: "Lokanth Srihari",
+                first_name: "Lokanth",
+                last_name: "Srihari",
                 email: "lokanth2006@gmail.com",
-                phone: "8838379971",
+                phone: "+91 8838379971",
                 location: "Vellore, India",
-                linkedin: "https://linkedin.com/in/lokanth"
+                linkedin: "https://linkedin.com/in/lokanth",
+                github: "https://github.com/lokant712"
               }
             })
           });
@@ -1340,15 +1352,24 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" }
+              profile: {
+                name: "Lokanth Srihari",
+                first_name: "Lokanth",
+                last_name: "Srihari",
+                email: "lokanth2006@gmail.com",
+                phone: "+91 8838379971",
+                location: "Vellore, India",
+                linkedin: "https://linkedin.com/in/lokanth",
+                github: "https://github.com/lokant712"
+              },
+              force_launch: false
             })
           });
           const decisionData = await execRes.json();
 
           processedCount++;
-          btn.innerText = `Processing batch (${processedCount}/${selected.length})...`;
+          btn.innerText = `Processing (${processedCount}/${selected.length})...`;
 
-          // Render Result Card
           renderBatchResultCard(grid, job, tailorData, decisionData);
         } catch (err) {
           console.error(`Error batch processing ${job.company}:`, err);
@@ -1395,31 +1416,41 @@
         </div>
 
         <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px; line-height:1.4;">
-          <strong>Decision rationale:</strong> ${decision.reason || 'All thresholds cleared for auto-fill.'}
+          <strong>Decision rationale:</strong> ${decision.reason || decision.message || 'All thresholds cleared.'}
         </div>
 
-        <div style="display:flex; gap:8px; align-items:center;">
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           ${cleanPdfPath ? `<a href="/resumes/${cleanPdfPath}" target="_blank" class="btn-action" style="font-size:11px; text-decoration:none;">📄 Download PDF</a>` : ''}
-          ${isPathA ? 
-            `<button class="btn-primary btn-success" style="font-size:11px; padding:6px 12px;" onclick="triggerPathAFor('${job.fingerprint}')">🚀 Launch Auto-Fill</button>` : 
-            `<button class="btn-primary btn-warning" style="font-size:11px; padding:6px 12px;" onclick="triggerPathBFor('${job.fingerprint}')">📱 Send Telegram</button>
-             ${job.application_link ? `<a href="${job.application_link}" target="_blank" class="btn-action" style="font-size:11px; text-decoration:none;">🔗 Apply with PDF</a>` : ''}`
-          }
+          <button class="btn-primary btn-success" style="font-size:11px; padding:6px 12px;" onclick="triggerPathAFor('${job.fingerprint}')">🚀 Launch Browser Pre-Fill</button>
+          <button class="btn-action" style="font-size:11px;" onclick="triggerPathBFor('${job.fingerprint}')">📱 Telegram</button>
+          ${job.application_link ? `<a href="${job.application_link}" target="_blank" class="btn-action" style="font-size:11px; text-decoration:none;">🔗 External Link</a>` : ''}
         </div>
       `;
       grid.appendChild(card);
     }
 
     async function triggerPathAFor(fp) {
-      showToast("Launching Playwright autofill...", "info");
+      showToast("Launching Chromium browser on your screen with safety stop...", "info");
       try {
         const res = await fetch(`${API_BASE}/api/execute/path-a/${fp}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" } })
+          body: JSON.stringify({
+            profile: {
+              name: "Lokanth Srihari",
+              first_name: "Lokanth",
+              last_name: "Srihari",
+              email: "lokanth2006@gmail.com",
+              phone: "+91 8838379971",
+              location: "Vellore, India",
+              linkedin: "https://linkedin.com/in/lokanth",
+              github: "https://github.com/lokant712"
+            },
+            force_launch: true
+          })
         });
         const d = await res.json();
-        showToast(d.message || `Route: ${d.route}`, "success");
+        showToast(d.message || "Browser launched on your desktop! Review and click submit.", "success");
         fetchTracker();
       } catch (e) { showToast(e.message, "error"); }
     }
@@ -1430,7 +1461,17 @@
         const res = await fetch(`${API_BASE}/api/execute/path-b/${fp}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ profile: { name: "Lokanth Srihari", email: "lokanth2006@gmail.com", phone: "8838379971" } })
+          body: JSON.stringify({
+            profile: {
+              name: "Lokanth Srihari",
+              first_name: "Lokanth",
+              last_name: "Srihari",
+              email: "lokanth2006@gmail.com",
+              phone: "+91 8838379971",
+              location: "Vellore, India",
+              linkedin: "https://linkedin.com/in/lokanth"
+            }
+          })
         });
         const d = await res.json();
         showToast(d.sent ? "Telegram alert dispatched!" : "Telegram alert logged (check tokens in .env)", "success");
@@ -1562,7 +1603,12 @@
       infoBox.style.display = 'block';
       document.getElementById('sel-job-title').innerText = job.role;
       document.getElementById('sel-job-company').innerText = job.company;
-      document.getElementById('sel-job-ats').innerHTML = `<span class="badge badge-${job.ats_type}">${job.ats_type.toUpperCase()} ATS</span>`;
+      document.getElementById('sel-job-ats').innerHTML = `<span class="badge badge-${job.ats_type}">${job.ats_type.toUpperCase()}</span>`;
+      
+      const directApplyBtn = document.getElementById('btn-direct-apply');
+      if (directApplyBtn) {
+        directApplyBtn.href = job.application_link || '#';
+      }
     }
 
     async function runTailorAndVerify() {
@@ -1574,7 +1620,7 @@
       const btn = document.getElementById('btn-run-tailor');
       btn.disabled = true;
       btn.innerHTML = `<span class="dot-blink">Generating & mechanically verifying claims...</span>`;
-      showToast("Running Tailor Agent & Grounding Verifier...", "info");
+      showToast("Running Fact-ID Tailor Agent & Grounding Verifier...", "info");
 
       try {
         const res = await fetch(`${API_BASE}/api/tailor/${activeFingerprint}`, {
@@ -1583,10 +1629,13 @@
           body: JSON.stringify({
             profile: {
               name: "Lokanth Srihari",
+              first_name: "Lokanth",
+              last_name: "Srihari",
               email: "lokanth2006@gmail.com",
-              phone: "8838379971",
+              phone: "+91 8838379971",
               location: "Vellore, India",
-              linkedin: "https://linkedin.com/in/lokanth"
+              linkedin: "https://linkedin.com/in/lokanth",
+              github: "https://github.com/lokant712"
             }
           })
         });
@@ -1610,6 +1659,7 @@
     function displayTailorResults(data) {
       document.getElementById('tailor-results-placeholder').style.display = 'none';
       document.getElementById('tailor-results-content').style.display = 'block';
+      document.getElementById('human-approval-box').style.display = 'block';
 
       const scorePct = (data.grounding_score * 100).toFixed(1);
       const scoreEl = document.getElementById('res-grounding-score');
@@ -1627,16 +1677,13 @@
         verdictEl.style.color = "var(--warning)";
       }
 
-      document.getElementById('btn-path-a').disabled = false;
-      document.getElementById('btn-path-b').disabled = false;
-
       const pdfContainer = document.getElementById('pdf-download-btn-container');
       if (data.pdf_path) {
         const cleanPath = data.pdf_path.replace(/\\/g, '/');
         const filename = cleanPath.split('/').pop();
         pdfContainer.innerHTML = `
           <a href="/resumes/${filename}" target="_blank" class="btn-action" style="background:var(--primary); color:#fff; text-decoration:none;">
-            📄 Download Tailored PDF
+            📄 Download Executive PDF
           </a>
         `;
       }
@@ -1657,7 +1704,7 @@
       }
     }
 
-    async function triggerPathA() {
+    async function launchBrowserOnScreen() {
       if (!activeFingerprint) return;
       triggerPathAFor(activeFingerprint);
     }

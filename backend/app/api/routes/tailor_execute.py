@@ -51,6 +51,7 @@ class TailorRequest(BaseModel):
 
 class ExecutePathARequest(BaseModel):
     profile: ProfileMetadata
+    force_launch: bool = False
 
 
 class ExecutePathBRequest(BaseModel):
@@ -62,7 +63,9 @@ class UpdateOutcomeRequest(BaseModel):
     status: str | None = None
 
 
-@router.post("/tailor/{fingerprint}", summary="Tailor resume + run Grounding Verifier")
+# ─── Routes ──────────────────────────────────────────────────────────────────
+
+@router.post("/tailor/{fingerprint}", summary="Generate and verify tailored resume")
 async def tailor(
     fingerprint: str,
     req: TailorRequest,
@@ -72,32 +75,27 @@ async def tailor(
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
 
-    # Run Tailor Agent
-    try:
-        resume = await tailor_resume(db, job)
-    except Exception as exc:
-        raise HTTPException(status_code=422, detail=str(exc))
+    # FR-5.x: Generate un-verified tailored resume
+    resume = await tailor_resume(db, job)
 
-    # Run Grounding Verifier (independent call)
+    # FR-6.x: Run Grounding Verifier
     verification = await verify_resume(db, resume)
 
-    # Generate PDF
+    # Save verification results on TailoredResume
+    resume.grounding_score = verification.grounding_score
+    resume.set_bullets(verification.verified_bullets)
+
+    # FR-5.3: Generate PDF resume
     profile_dict = req.profile.model_dump()
-    if not profile_dict.get("full_name"):
-        profile_dict["full_name"] = f"{profile_dict.get('first_name','')} {profile_dict.get('last_name','')}".strip()
+    pdf_path = generate_resume_pdf(
+        resume=resume,
+        profile=profile_dict,
+        company=job.company,
+        role=job.role,
+    )
+    resume.pdf_path = pdf_path
 
-    try:
-        pdf_path = generate_resume_pdf(
-            resume=resume,
-            profile=profile_dict,
-            company=job.company,
-            role=job.role,
-        )
-        resume.pdf_path = pdf_path
-    except Exception as exc:
-        log.warning(f"PDF generation failed: {exc}")
-
-    # Persist resume
+    # Persist TailoredResume
     db.add(resume)
 
     # Update ApplicationRecord status
@@ -164,12 +162,10 @@ async def download_resume_pdf(resume_id: str, db: AsyncSession = Depends(get_db)
     return FileResponse(resume.pdf_path, media_type="application/pdf", filename=f"resume_{resume_id}.pdf")
 
 
-
 @router.post("/execute/path-a/{fingerprint}", summary="Launch Path A Playwright auto-fill")
 async def execute_path_a(
     fingerprint: str,
     req: ExecutePathARequest,
-    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
     job = await get_job(db, fingerprint)
@@ -205,12 +201,13 @@ async def execute_path_a(
         execution_score=execution_signals.score,
     )
 
-    if decision.route == "PATH_B":
+    if decision.route == "PATH_B" and not req.force_launch:
         log.info(f"Pre-fill gate failed → routing to PATH_B: {decision.reason}")
         await record_decision(db, job, decision)
         return {
             "route": "PATH_B",
             "reason": decision.reason,
+            "message": f"Routed to Manual Review (Path B): {decision.reason}",
             "scores": {
                 "grounding": resume.grounding_score,
                 "completeness": completeness_score,
@@ -218,21 +215,25 @@ async def execute_path_a(
             },
         }
 
-    # Log decision
+    # If force_launch or cleared AND gate
+    if req.force_launch:
+        decision.route = "PATH_A"
+
     await record_decision(db, job, decision)
 
-    # Launch Path A in background (browser stays open for user)
-    background_tasks.add_task(
-        run_path_a,
-        application_url=job.application_link,
-        ats_type=job.ats_type,
-        profile=profile_dict,
-        resume=resume,
+    # Launch Playwright in visible browser on user's desktop
+    asyncio.create_task(
+        run_path_a(
+            application_url=job.application_link,
+            ats_type=job.ats_type if job.ats_type in ("greenhouse", "lever", "ashby") else "greenhouse",
+            profile=profile_dict,
+            resume=resume,
+        )
     )
 
     return {
         "route": "PATH_A",
-        "message": "Browser auto-fill launched. Review all fields before submitting.",
+        "message": "Visible browser launched on your screen! Please review the pre-filled fields and click Submit yourself.",
         "scores": {
             "grounding": resume.grounding_score,
             "completeness": completeness_score,
