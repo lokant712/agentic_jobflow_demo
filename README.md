@@ -1,204 +1,158 @@
-# Agentic-JobFlow — README
+# Agentic-JobFlow 🚀
+**Fact-ID Grounded Resume Tailoring, Empirical Verification & Human-in-the-Loop Job Application Engine**
 
-## Overview
-
-Agentic-JobFlow is a locally-run job application workflow system that reduces time-to-quality-application while enforcing two hard constraints:
-
-1. **Zero Fabrication** — Every resume claim is mechanically grounded and traceable to an immutable Fact ID from your Master Profile Store.
-2. **Human Control** — No application is ever submitted automatically. Path A fills forms in a visible browser and waits for you. Path B sends you the PDF via Telegram.
+[![TRL 4](https://img.shields.io/badge/TRL-4%20Laboratory%20Validated-success?style=for-the-badge)](./trl4_evidence.md)
+[![Tests Passing](https://img.shields.io/badge/tests-61%2F61%20passing-brightgreen?style=for-the-badge)](./tests)
+[![Zero Fabrication](https://img.shields.io/badge/Hallucination%20Leakage-0.0%25-blue?style=for-the-badge)](./backend/app/services/tailoring/grounding_verifier.py)
+[![Human-in-the-Loop](https://img.shields.io/badge/Auto--Submit-Blocked%20by%20Design-red?style=for-the-badge)](./backend/app/services/execution/path_a_autofill.py)
 
 ---
 
-## Quick Start
+## 🎯 Overview
 
-### 1. Clone and Install
+**Agentic-JobFlow** is an agentic AI system designed to solve two fundamental problems in modern AI job search tools:
+1. **Resume Hallucination & Embellishment:** Standard LLMs frequently fabricate skills, tools, or metrics when asked to tailor resumes. JobFlow enforces **Fact-ID Grounding**—every single bullet is mechanically checked against an immutable store of candidate truth claims.
+2. **Blind Auto-Submission Spam:** Bot spam causes ATS bans and blacklists. JobFlow enforces the **Golden Rule of Human Control**: Path A automatically fills ATS forms in a visible browser session and attaches the tailored PDF resume, but **deliberately halts before the submit button** for your final review and click.
+
+---
+
+## 🏛️ System Architecture
+
+```mermaid
+graph TD
+    subgraph 1. Candidate Fact Store
+        Resume["User Resume Text"] --> Ingest["Profile Ingestion Service"]
+        Ingest --> Store[("Immutable Fact Store\nFACT-001 ... FACT-128")]
+    end
+
+    subgraph 2. Job Discovery & Ingestion
+        WebJobs["Web Job URLs / Adzuna / DuckDuckGo"] --> Scout["Scout Ingestion Agent"]
+        Scout --> Canonicalizer["Canonicalizer (SHA-256 Deduplication)"]
+    end
+
+    subgraph 3. Fact-Constrained Tailoring
+        Store --> Tailor["Tailor Agent (Groq 120B / Gemini / Claude)"]
+        Canonicalizer --> Tailor
+        Tailor --> RawBullets["Structured Bullets with Cited fact_ids"]
+    end
+
+    subgraph 4. Mechanical Grounding Verifier
+        RawBullets --> Verifier["Grounding Verifier (Entity Span Matcher)"]
+        Store -.->|Checks Entailment| Verifier
+        Verifier --> Score["Grounding Score (G)"]
+        Verifier --> PDF["ATS-Compliant PDF Resume (/resumes/...)"]
+    end
+
+    subgraph 5. Hard AND-Gate Decision Engine
+        Score --> ANDGate{"Hard 3-Input AND Gate\nG ≥ 0.95 | C ≥ 0.85 | E ≥ 0.90"}
+        ANDGate -->|All Pass| PathA["Path A: Playwright Autofill\n(Pre-fills form & Pauses for Human Review)"]
+        ANDGate -->|Any Fail| PathB["Path B: Telegram Alert\n(Sends mobile alert with PDF & Apply Link)"]
+    end
+```
+
+---
+
+## 📊 Empirical TRL-4 Benchmark Results
+
+We benchmarked the complete tailoring and verification pipeline across **20 diverse, real-world Job Descriptions** (155 bullets evaluated) using Groq's 120B parameter model:
+
+| Metric | Value | Significance |
+|---|:---:|---|
+| **Job Descriptions Processed** | **20 / 20 (100%)** | Zero pipeline failures or crashes |
+| **Total Bullets Evaluated** | **155 bullets** | Real claims evaluated against candidate facts |
+| **Mean Grounding Score** | **87.4%** | Empirical average across diverse tech roles |
+| **Active Verifier Drop Rate** | **12.9% (20 bullets dropped)** | **Proves active enforcement** (catches ungrounded embellishments) |
+| **Fabricated Claims Leaked** | **0 (0.0%)** | Zero unverified claims ever made it to final output |
+| **Adversarial Mismatch Rejection** | **Passed** | Out-of-domain roles (e.g. Quant Finance) collapsed to 62.5% and were safely rejected to Path B |
+
+*See full empirical dataset and analysis in [`trl4_evidence.md`](./trl4_evidence.md).*
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Install
 
 ```powershell
+git clone https://github.com/lokant712/agentic_jobflow_demo.git
 cd agentic_jobflow_demo
 pip install -e ".[dev]"
 playwright install chromium
 ```
 
-### 2. Configure
+### 2. Configure Environment (`.env`)
+
+Copy `.env.example` to `.env` and set your preferred LLM provider:
+
+```ini
+# Choose LLM provider: groq (recommended, free fast tier), gemini, claude, or offline
+LLM_PROVIDER=groq
+LLM_MODEL=openai/gpt-oss-120b
+GROQ_API_KEY=your_groq_api_key
+
+# Database
+DATABASE_URL=sqlite+aiosqlite:///./data/jobflow.db
+
+# Optional: Telegram Bot for Path B mobile push notifications
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+```
+
+### 3. Launch Mission Control Dashboard
 
 ```powershell
-copy .env.example .env
-# Edit .env — set at minimum:
-#   LLM_PROVIDER=offline      (for local testing without API keys)
-#   DATABASE_URL=sqlite+aiosqlite:///./data/jobflow.db
+python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-### 3. Run
+Open in browser:
+- 💻 **Web Dashboard:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
+- 📖 **Interactive Swagger API:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
+---
+
+## 🧪 Testing & Validation
+
+### Run Full Regression Test Suite (61/61 Passing)
 ```powershell
-python -m backend.app.main
-# or:
-uvicorn backend.app.main:app --reload
+pytest tests/ -q
 ```
 
-Open: http://127.0.0.1:8000/ (status page) | http://127.0.0.1:8000/docs (API docs)
-
----
-
-## Configuration
-
-All settings are set via `.env` (copy from `.env.example`):
-
-| Variable | Default | Description |
-|---|---|---|
-| `LLM_PROVIDER` | `offline` | `claude` / `gemini` / `offline` |
-| `LLM_MODEL` | `claude-sonnet-4-5` | Model name for Tailor Agent |
-| `VERIFIER_LLM_PROVIDER` | `offline` | Independent model for Grounding Verifier |
-| `VERIFIER_MAX_RETRIES` | `2` | Max bullet regeneration attempts before drop |
-| `THRESHOLD_GROUNDING` | `0.95` | Grounding Score threshold for PATH_A |
-| `THRESHOLD_COMPLETENESS` | `0.85` | Completeness Score threshold for PATH_A |
-| `THRESHOLD_EXECUTION` | `0.90` | Execution Score threshold for PATH_A |
-| `TELEGRAM_BOT_TOKEN` | _(empty)_ | Required for Path B notifications |
-| `TELEGRAM_CHAT_ID` | _(empty)_ | Your Telegram chat/user ID |
-| `ADZUNA_APP_ID` | _(empty)_ | Adzuna API credentials (Scout Agent) |
-| `DATABASE_URL` | SQLite | Database connection string |
-
----
-
-## System Architecture
-
-```
-Master Profile Store (FactUnits: FACT-001, FACT-002, ...)
-          │
-          ▼
-Scout Agent / Gmail Adapter ──► Canonicalization & Dedup Layer
-                                        │
-                                        ▼
-                                  Tailor Agent
-                                  (text, [fact_ids])
-                                        │
-                                        ▼
-                               Grounding Verifier (independent)
-                                        │
-                                        ▼
-                               Decision Engine (3-Signal Gate)
-                              ┌─────────┴──────────┐
-                         PATH_A                  PATH_B
-                   (Playwright fill)        (Telegram PDF)
-                   [Human submits]
-```
-
----
-
-## Core Concepts
-
-### Fact Units
-Your profile is decomposed into atomic facts, each with an immutable ID:
-- `FACT-001` → `"Led migration to microservices, reducing API latency by 40%"` (metric)
-- `FACT-002` → `"Python, Spark, Kafka, PostgreSQL"` (tool)
-
-The Tailor Agent can only use facts that exist in your store. It cannot create new ones.
-
-### Grounding Verifier
-Every resume bullet is mechanically checked: numbers, tool names, and proper nouns in the bullet text must appear as substrings in the cited fact text. Bullets that fail N=2 retries are **dropped entirely** (never output unverified).
-
-### 3-Signal Decision Gate
-Before Path A launches:
-- **Grounding Score** (≥0.95): fraction of verified bullets
-- **Completeness Score** (≥0.85): profile fields mappable to ATS required fields (pre-computed from manifest)
-- **Execution Score** (≥0.90): ATS identified + no bot challenge + all selectors found
-
-Any single failure → Path B.
-
-### Path A Safety
-- Non-headless browser (you see everything)
-- Red banner injected and re-injected on every page navigation: **"⚠️ AGENTIC-JOBFLOW — DO NOT SUBMIT"**
-- Submit button click-blocked at JS event level
-- Field registration verified (DOM events dispatched, value read-back confirmed)
-- CAPTCHA/Cloudflare detection → immediate abort to Path B
-- **PATH A IS TEST-ONLY until ToS review for Greenhouse/Lever/Ashby is complete**
-
----
-
-## API Reference
-
-All endpoints are documented at `/docs` (Swagger UI).
-
-### Profile
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/profile/ingest` | Ingest raw resume text → FactUnits |
-| `GET` | `/api/profile/facts` | List all FactUnits |
-| `POST` | `/api/profile/facts` | Manually create a FactUnit |
-| `PUT` | `/api/profile/facts/{id}` | Update a FactUnit |
-| `DELETE` | `/api/profile/facts/{id}` | Delete a FactUnit |
-
-### Jobs
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/jobs/scout` | Search for jobs via Scout Agent |
-| `POST` | `/api/jobs/scrape` | Scrape a single job URL |
-| `POST` | `/api/jobs/gmail-sync` | Sync job alerts from Gmail |
-| `POST` | `/api/jobs/manual` | Add a job manually |
-| `GET` | `/api/jobs` | List all canonical job records |
-
-### Tailor & Execute
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/tailor/{fingerprint}` | Tailor resume + run Grounding Verifier |
-| `POST` | `/api/execute/path-a/{fingerprint}` | Launch Playwright auto-fill |
-| `POST` | `/api/execute/path-b/{fingerprint}` | Send Telegram notification |
-| `GET` | `/api/tracker` | Application status board |
-| `PATCH` | `/api/tracker/{fingerprint}` | Update user-reported outcome |
-| `GET` | `/api/decisions` | Decision Engine audit log |
-
----
-
-## Running Tests
-
+### Run Live End-to-End REST API Chain
 ```powershell
-pytest tests/ -v --tb=short
+python test_api_chain.py
 ```
 
-Expected test coverage:
-- `test_profile_service.py` — Fact ID ingestion, one-way flow enforcement
-- `test_canonicalizer.py` — Fingerprint determinism, dedup, ATS detection
-- `test_grounding_verifier.py` — Entity extraction, pass/fail/drop logic
-- `test_decision_engine.py` — Score computation, routing, threshold behavior
+### Run Live Playwright Autofill Test (Path A with Safety Stop)
+```powershell
+python test_live_path_a.py
+```
 
 ---
 
-## Gmail OAuth Setup
+## 📁 Repository Structure
 
-1. Create a Google Cloud project and enable the Gmail API.
-2. Create OAuth 2.0 credentials (Desktop App).
-3. Download as `credentials/gmail_oauth_credentials.json`.
-4. On first run of `/api/jobs/gmail-sync`, a browser window will open for OAuth consent.
-5. Token is saved to `credentials/gmail_token.json` for subsequent runs.
-
-Scope: `gmail.readonly` only. No email is ever sent or modified.
-
----
-
-## Telegram Setup
-
-1. Message [@BotFather](https://t.me/BotFather) on Telegram → create a bot → get token.
-2. Message your bot once, then get your chat ID from `https://api.telegram.org/bot{TOKEN}/getUpdates`.
-3. Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in `.env`.
-
----
-
-## Open Items (Pre-Production)
-
-- [ ] **ToS review** for Greenhouse, Lever, Ashby automated form-filling (not submission)
-- [ ] **50-pair grounding test set** validation (to be supplied separately — see PRD §5)
-- [ ] Full dashboard (React/Vite) — deferred until grounding accuracy validated on test set
+```
+agentic_jobflow_demo/
+├── backend/
+│   └── app/
+│       ├── api/routes/          # REST API endpoints (profile, jobs, tailor, execute, tracker)
+│       ├── db/                  # SQLite models (FactUnit, CanonicalJob, TailoredResume, DecisionLog)
+│       ├── services/
+│       │   ├── ingestion/       # Scout Agent, 1-click URL Scraper, Canonicalizer
+│       │   ├── tailoring/       # Fact-ID Tailor Agent, Grounding Verifier, PDF Generator
+│       │   ├── decision_engine/ # Hard 3-input AND Gate formulation
+│       │   └── execution/       # Path A (Playwright Autofill) & Path B (Telegram Bot)
+│       └── static/              # Mission Control Dashboard (HTML/CSS/JS)
+├── tests/                       # Complete unit and integration test suite
+├── validate_trl4.py             # 20-JD TRL-4 benchmark execution script
+├── test_api_chain.py            # End-to-end REST lifecycle test
+├── test_live_path_a.py          # Live Playwright autofill execution test
+├── trl4_evidence.md             # Publication-ready TRL-4 empirical evidence document
+└── pyproject.toml               # Project dependencies
+```
 
 ---
 
-## Data
+## 🛡️ License
 
-All data is stored locally:
-- **Database**: `data/jobflow.db` (SQLite)
-- **Resumes**: `data/resumes/` (PDF files)
-- **Audit logs**: `data/logs/` (JSONL files)
-- **Gmail token**: `credentials/gmail_token.json`
-
-No user data leaves your machine except:
-- LLM API calls (if using Claude/Gemini provider, not offline)
-- Telegram notifications (Path B)
+MIT License. Designed for ethical, human-governed career automation research.
